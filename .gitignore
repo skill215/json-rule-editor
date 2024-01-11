@@ -90,3 +90,8 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+src/server-side/rulesets
+src/server-side/validates
+test
+src/server-side/backend

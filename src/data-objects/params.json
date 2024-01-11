@@ -1,0 +1,19 @@
+    {
+        "param-type": [
+            "O-MSISDN",
+            "D-MSISDN",
+            "O-IMSI",
+            "D-IMSI",
+            "O-VMSC",
+            "O-SMSC",
+            "PID",
+            "SET-AO",
+            "SUCCESS_IND"
+        ],
+        "event-type": [
+            "ACCEPT",
+            "REJECT",
+            "LOG",
+            "MODIFY"
+        ]
+    }
