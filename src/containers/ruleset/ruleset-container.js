@@ -17,14 +17,14 @@ import RuleErrorBoundary from '../../components/error/ruleset-error';
 import SweetAlert from 'react-bootstrap-sweetalert';
 
 // const tabs = [{ name: 'Facts' }, { name: 'Decisions' }, { name: 'Validate' }, { name: 'Generate' }, { name: 'Apply' }];
-const tabs = [{ name: 'Decisions' }, { name: 'Keyword Lists'}, { name: 'Validate' }, { name: 'Generate' }, { name: 'Apply' }];
+const tabs = [{ name: 'Rules' }, { name: 'Keyword Lists'}, { name: 'Validate' }, { name: 'Generate' }, { name: 'Apply' }];
 
 class RulesetContainer extends Component {
 
   constructor(props) {
     super(props);
     this.state = { 
-      activeTab: 'Decisions', 
+      activeTab: 'Rules', 
       klNames: [],
       generateFlag: false, 
       applyFlag: false, 
@@ -216,7 +216,7 @@ class RulesetContainer extends Component {
         <div className="tab-page-container">
           {this.state.activeTab === 'Keyword Lists' && <Klist klists={klists}
             handleKlist={this.props.handleKlist} />}
-          {this.state.activeTab === 'Decisions' && <Decisions decisions={indexedDecisions || []} attributes={attributes}
+          {this.state.activeTab === 'Rules' && <Decisions decisions={indexedDecisions || []} attributes={attributes}
             handleDecisions={this.props.handleDecisions} getKlnames={this.getKlnames} outcomes={outcomes} />}
           {this.state.activeTab === 'Validate' && <ValidateRules attributes={attributes} decisions={decisions} ruleset={this.props.ruleset} sendValidate={this.sendValidate} />}
           {this.state.activeTab === 'Generate' && <Banner message={generate_message} ruleset={this.props.ruleset} onConfirm={this.generateFile} />}

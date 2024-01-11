@@ -107,6 +107,7 @@ class DecisionDetails extends Component {
 
     editCondition(e, decisionIndex) {
         e.preventDefault();
+        console.log(`in editCondition, decisionIndex =========> ${JSON.stringify(decisionIndex)}`);
         this.props.editCondition(decisionIndex);
     }
 
@@ -233,21 +234,32 @@ class DecisionDetails extends Component {
     }
 
     renderConditions = (conditions, index) => {
-        //console.log(`index =========> ${JSON.stringify(index)}`);
-        //console.log(`conditions =========> ${JSON.stringify(conditions)}`);
+        console.log(`index =========> ${JSON.stringify(index)}`);
+        console.log(`conditions =========> ${JSON.stringify(conditions)}`);
         const transformedData = transformRuleToTree(conditions);
-        // console.log(`transformedData =========> ${JSON.stringify(transformedData)}`);
+        console.log(`transformedData =========> ${JSON.stringify(transformedData)}`);
         return (
             <div className="rule-flex-container">
                 <div className="decision-box" key={`case - ${index}`}>
-                    <div className="tool-flex">
-                        <div><a href="" onClick={(e) => this.editCondition(e, transformedData.index)}><FontAwesomeIcon icon={faPenToSquare} /></a></div>
-                        <div><a href="" onClick={((e) => this.handleRemoveCondition(e, transformedData.index))}><FontAwesomeIcon icon={faTrash} /></a></div>
-                    </div>
+                    {/* <div className="tool-flex">
+                        <div><a href="" onClick={(e) => this.editCondition(e, index)}><FontAwesomeIcon icon={faPenToSquare} /></a></div>
+                        <div><a href="" onClick={((e) => this.handleRemoveCondition(e, index))}><FontAwesomeIcon icon={faTrash} /></a></div>
+                    </div> */}
                     <Tree treeData={transformedData.node} count={transformedData.depthCount} />
                     {transformedData.event.params && <div className="view-params-container">
                         <h4>Params  </h4>
                         <ViewAttribute items={transformedData.event.params} />
+                    </div>}
+                    {transformedData.event && <div className="view-event-container">
+                        <h4>Actions</h4>
+                        {transformedData.event.map((event, i) => (
+                            <div key={i}>
+                                {Object.keys(event.params).length > 0 
+                                    ? <p>{event.type} - {JSON.stringify(event.params)}</p>
+                                    : <p>{event.type}</p>
+                                }
+                            </div>
+                        ))}
                     </div>}
                 </div>
             </div>)

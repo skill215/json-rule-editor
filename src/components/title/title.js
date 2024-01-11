@@ -14,7 +14,7 @@ const Title = (props) => {
 )};
 
 Title.defaultProps = {
-  title: 'Json Rule Editor',
+  title: 'SMS-FW Rule Editor',
 };
 
 Title.propTypes = {

@@ -49,7 +49,7 @@ class Decision extends Component {
 
     editCondition(decisionIndex) {
         const decision = this.props.decisions[decisionIndex];
-        // console.log(`in editCondition, decision: ${JSON.stringify(decision)} `);
+        console.log(`in editCondition, decision: ${JSON.stringify(decision)} `);
         const editCondition = transformRuleToTree(decision);
         let outputParams = [];
         if (decision.event.params && Object.keys(decision.event.params).length > 0) {
@@ -131,7 +131,7 @@ class Decision extends Component {
     render() {
         const { searchCriteria, bannerflag } = this.state;
         const buttonProps = { primaryLabel: 'Add Rulecase', secondaryLabel: 'Cancel'};
-        const editButtonProps = { primaryLabel: 'Edit Rulecase', secondaryLabel: 'Cancel'};
+        const editButtonProps = { primaryLabel: 'Save Changes', secondaryLabel: 'Cancel'};
         const filteredOutcomes = searchCriteria ? this.filterOutcomes() : this.props.outcomes;
         const { outcomes } = this.props;
 

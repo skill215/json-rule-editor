@@ -8,9 +8,11 @@ import AppearanceContext from '../../context/apperance-context';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faSquarePlus, faCloudArrowUp, faSliders } from '@fortawesome/free-solid-svg-icons';
 
-const navmenu = [{ name: 'Create Rules', navigate: './create-ruleset', iconClass: "icon", fontIcons: faSquarePlus, linkClass: 'navmenu'},
-                 { name: 'Upload Rules', navigate: './home', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu' },
-                { name: 'Appearance', navigate: './appearance', iconClass: "icon", fontIcons: faSliders, linkClass: 'navmenu'} ];
+// const navmenu = [{ name: 'Create Rules', navigate: './create-ruleset', iconClass: "icon", fontIcons: faSquarePlus, linkClass: 'navmenu'},
+//                  { name: 'Upload Rules', navigate: './home', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu' },
+//                 { name: 'Appearance', navigate: './appearance', iconClass: "icon", fontIcons: faSliders, linkClass: 'navmenu'} ];
+const navmenu = [{ name: 'Create Rules', navigate: './create-ruleset', iconClass: "icon", fontIcons: faSquarePlus, linkClass: 'navmenu' },
+{ name: 'Upload Rules', navigate: './home', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu' }];
 class NavigationPanel extends Component {
 
     constructor(props) {
