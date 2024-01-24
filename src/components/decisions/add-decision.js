@@ -27,7 +27,7 @@ const nodeStyle = {
     },
 };
 
-const factsButton = [{ label: 'Add Facts', disable: false },
+const factsButton = [{ label: 'Add Condition', disable: false },
 { label: 'Add All', disable: false },
 { label: 'Add Any', disable: false },
 { label: 'Remove', disable: false }];
@@ -35,7 +35,7 @@ const factsButton = [{ label: 'Add Facts', disable: false },
 const topLevelOptions = [{ label: 'All', active: false, disable: false },
 { label: 'Any', active: false, disable: false }];
 
-const outcomeOptions = [{ label: 'Add Outcome', active: false, disable: false },
+const outcomeOptions = [{ label: 'Add Action', active: false, disable: false },
 { label: 'Edit Conditions', active: false, disable: false }];
 
   
@@ -94,6 +94,7 @@ class AddDecision extends Component {
         this.handleOutputPanel = this.handleOutputPanel.bind(this);
         this.handleOutputParams = this.handleOutputParams.bind(this);
         this.addParams = this.addParams.bind(this);
+        this.handleRemoveParam = this.handleRemoveParam.bind(this);
         this.addPath = this.addPath.bind(this);
         this.addOutcome = this.addOutcome.bind(this);
         this.mergeEvent = this.mergeEvent.bind(this);
@@ -201,6 +202,13 @@ class AddDecision extends Component {
         this.setState({ outcome: outcomes });
     }
 
+    handleRemoveParam(index, outcomeIndex) {
+        const { outcome: outcomes } = this.state;
+        const newParams = outcomes[outcomeIndex].params.filter((param, ind) => ind !== index);
+        outcomes[outcomeIndex].params = newParams;
+        this.setState({ outcome: outcomes });
+    }
+
     addPath() {
         this.setState({ addPathflag: true });
     }
@@ -287,7 +295,7 @@ class AddDecision extends Component {
 
     handleChildrenNode(value) {
         let factOptions = [...factsButton];
-        if (value === 'Add Facts') {
+        if (value === 'Add Condition') {
             this.setState({ enableFieldView: true });
         } else {
             const { activeNodeDepth, node, attributes } = this.state;
@@ -358,10 +366,10 @@ class AddDecision extends Component {
     }
 
     handleOutputPanel(value) {
-        if (value === 'Add Outcome') {
+        if (value === 'Add Action') {
             const factsOptions = this.state.factsButton.map(fact => ({ ...fact, disable: true }))
             const options = this.state.outcomeOptions.map(opt => {
-                if (opt.label === 'Add Outcome') {
+                if (opt.label === 'Add Action') {
                     return { ...opt, active: true };
                 }
                 return { ...opt, active: false };
@@ -397,8 +405,8 @@ class AddDecision extends Component {
                 />
             </div>
             <div className="step1"><div>Step 1: Add Toplevel</div><ButtonGroup buttons={topLevelOptions} onConfirm={this.handleTopNode} /></div>
-            <div className="step2"><div> Step 2: Add / Remove facts</div><ButtonGroup buttons={factsButton} onConfirm={this.handleChildrenNode} /></div>
-            <div className="step3"><div> Step 3: Add Outcome</div><ButtonGroup buttons={outcomeOptions} onConfirm={this.handleOutputPanel} /></div>
+            <div className="step2"><div> Step 2: Add / Remove Condition</div><ButtonGroup buttons={factsButton} onConfirm={this.handleChildrenNode} /></div>
+            <div className="step3"><div> Step 3: Add Action</div><ButtonGroup buttons={outcomeOptions} onConfirm={this.handleOutputPanel} /></div>
         </div>)
     }
 
@@ -503,6 +511,9 @@ class AddDecision extends Component {
                                 <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
                                     <label style={{ marginRight: '10px' }}>Value</label>
                                     <InputField onChange={(value) => this.handleOutputParams(value, 'pvalue', ind, index)} value={param.pvalue} />
+                                </div>
+                                <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                                    <button onClick={() => this.handleRemoveParam(ind, index)}>Remove</button>
                                 </div>
                             </div>)}
                     </div>
