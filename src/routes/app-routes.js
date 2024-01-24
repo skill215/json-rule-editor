@@ -4,6 +4,8 @@ import HomeContainer from '../containers/home/home-container';
 import RulesetContainer from '../containers/ruleset/ruleset-container';
 import CreateRulesetContainer from '../containers/ruleset/create-ruleset-container';
 import AppearanceContainer from '../containers/app/appearance-container';
+import UploadContainer from '../containers/upload/upload-container';
+import FetchContainer from '../containers/fetch/fetch-container';
 import PropTypes from 'prop-types';
 
 const AppRoutes = (props) => {
@@ -15,6 +17,8 @@ const AppRoutes = (props) => {
                 <Route path="/ruleset" exact component={RulesetContainer} />
                 <Route path="/create-ruleset" exact component={CreateRulesetContainer} />
                 <Route path="/appearance" exact component={AppearanceContainer} />
+                <Route path="/upload" exact component={UploadContainer} />
+                <Route path="/fetch" exact component={FetchContainer} />
             </Switch>   
         </HashRouter>
     </div>);

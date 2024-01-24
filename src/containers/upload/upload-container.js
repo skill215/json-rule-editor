@@ -29,20 +29,16 @@ function readFile(file, cb) {
   return reader.readAsText(file);
 }
 
-class HomeContainer extends Component {
+class UploadContainer extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { uploadedFilesCount: 0, files: [], ruleset: [], uploadError: false, fileExist: false, message: {}, fetchErrFlag: false, fetchErrMsg: '', fetched: false};
+    this.state = { uploadedFilesCount: 0, files: [], ruleset: [], uploadError: false, fileExist: false, message: {}};
     this.drop = this.drop.bind(this);
     this.allowDrop = this.allowDrop.bind(this);
     this.printFile = this.printFile.bind(this);
     this.handleUpload = this.handleUpload.bind(this);
     this.chooseDirectory = this.chooseDirectory.bind(this);
-    this.handleGetFromServer = this.handleGetFromServer.bind(this);
-    this.getFromServer = this.getFromServer.bind(this);
-    this.cancelAlert = this.cancelAlert.bind(this);
-    this.fetchErrAlert = this.fetchErrAlert.bind(this);
   }
 
   allowDrop(e) {
@@ -86,16 +82,6 @@ class HomeContainer extends Component {
     });
   }
 
-  // this method is not required. its to select files from local disk.
-  /* chooseFile() {
-   const file = document.getElementById("uploadFile");
-   if (file && file.files) {
-     for (let i = 0; i < file.files.length; i++) {
-       readFile(file.files[i], this.printFile);
-     }
-   }
-  } */
-
   chooseDirectory(e) {
     const files = e.target.files;
     if (files) {
@@ -129,67 +115,18 @@ class HomeContainer extends Component {
     }
   }
 
-  getFromServer() {
-    this.handleGetFromServer();
-
-  }
-
-  handleGetFromServer() {
-    fetch('http://localhost:3001/get-ruleset')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(json => {
-        console.log(`Success: ${JSON.stringify(json)}`);
-        if (json.length > 0) {
-          json.forEach(ruleset => {
-            this.props.uploadRuleset(ruleset);
-          });
-          this.navigate('./ruleset');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        this.setState({ 
-          fetchErrFlag: true, 
-          fetchErrMsg: `Failed to fetch rulesets from server. Please check your connection. Error: ${error.message}` 
-        });
-      });
-  }
-
   navigate(location) {
     const history = createHashHistory();
     this.props.login();
     history.push(location);
   }
 
-  fetchErrAlert = () => {
-    return (<SweetAlert
-      error
-      title={"Fetching Rulesets Error!"}
-      onConfirm={this.cancelAlert}
-    > {this.state.fetchErrMsg}
-    </SweetAlert>);
-  }
-
-  cancelAlert() {
-    this.setState({ fetchErrFlag: false });
-  }
-
-  componentDidMount() {
-    this.getFromServer();
-    this.setState({ fetched: true });
-  }
-
   render() {
-    const { fileExist, uploadError, message, fetchCnt } = this.state;
-    const title = this.props.loggedIn ? "Upload Rules" : "Create / Upload Rules";
+    const { fileExist, uploadError, message } = this.state;
+    const title = "Upload Rules";
     const appctx = this.context;
 
-    return <div className="home-container">
+    return <div className="upload-container">
       <div className="single-panel-container">
         {(fileExist || uploadError) && <Notification body={message.body} heading={message.heading} type={message.type} />}
         <TitlePanel title={title} titleClass={faCloudArrowUp}>
@@ -202,22 +139,20 @@ class HomeContainer extends Component {
           <div className="btn-group">
             {/* <Button label={"Get From Server"} onConfirm={this.handleGetFromServer} classname="primary-btn" type="button" /> */}
             <Button label={"Upload"} onConfirm={this.handleUpload} classname="primary-btn" type="button" />
-            {!this.props.loggedIn && <Button label={"Create"} onConfirm={() => this.navigate('./create-ruleset')} classname="primary-btn" type="button" disabled={this.state.files.length > 0} />}
           </div>
         </TitlePanel>
       </div>
       {!this.props.loggedIn && <div className='footer-container home-page'>
         <FooterLinks links={footerLinks} />
       </div>}
-      {this.state.fetchErrFlag && this.fetchErrAlert()}
 
     </div>
   }
 }
 
-HomeContainer.contextType = ApperanceContext;
+UploadContainer.contextType = ApperanceContext;
 
-HomeContainer.propTypes = {
+UploadContainer.propTypes = {
   ruleset: PropTypes.array,
   uploadRuleset: PropTypes.func,
   login: PropTypes.func,
@@ -225,7 +160,7 @@ HomeContainer.propTypes = {
   rulenames: PropTypes.array,
 }
 
-HomeContainer.defaultProps = {
+UploadContainer.defaultProps = {
   rulenames: [],
   ruleset: [],
   uploadRuleset: () => false,
@@ -245,4 +180,4 @@ const mapDispatchToProps = (dispatch) => ({
 
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(HomeContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(UploadContainer);

@@ -30,6 +30,17 @@ type Config struct {
 	} `yaml:"smsc"`
 }
 
+type Response struct {
+	Data string `json:"data"`
+}
+
+type InnerData struct {
+	Success bool `json:"success"`
+	Data    struct {
+		Message string `json:"message"`
+	} `json:"data"`
+}
+
 func readConfig() (*Config, error) {
 	file, err := os.Open("rule-editor-server.yaml")
 
@@ -92,7 +103,26 @@ func validate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("Validation successful, response body:", respBody)
-	fmt.Fprint(w, respBody)
+
+	var response Response
+	err = json.Unmarshal([]byte(respBody), &response)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var innerData InnerData
+	err = json.Unmarshal([]byte(response.Data), &innerData)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Write the innerData as a JSON string to the dataString
+	err = json.NewEncoder(w).Encode(innerData)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//fmt.Fprint(w, dataString)
 }
 
 func writeToFile(body []byte) error {
@@ -131,6 +161,8 @@ func performValidation(body []byte) (string, error) {
 		return "", err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	log.Println("Req length:", len(body))
+	log.Println("Request:", req)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

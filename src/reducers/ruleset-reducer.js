@@ -13,7 +13,7 @@ const initialState = {
 
 
 const replaceRulesetByIndex = (rulesets, targetset, index) => {
-     return [ ...rulesets.slice(0, index), targetset, ...rulesets.slice(index + 1)];
+    return [...rulesets.slice(0, index), targetset, ...rulesets.slice(index + 1)];
 }
 
 const moveRuleUpByIndex = (activeRuleSet, ruleIndex) => {
@@ -98,35 +98,45 @@ const removeDecisionsByOutcome = (rulesets, activeRulesetIndex, outcome) => {
     return newRulesets;
 }
 
-function ruleset(state = initialState, action='') {
+function ruleset(state = initialState, action = '') {
 
     console.log(`Ruleset in reducer: ${JSON.stringify(state.rulesets)}`)
 
-    switch(action.type) {
+    switch (action.type) {
 
         case ActionTypes.UPLOAD_RULESET: {
 
             const { ruleset } = action.payload;
-            const rulesets = state.rulesets.concat(ruleset);
-             return { ...state, rulesets: cloneDeep(rulesets),  uploadedRules: cloneDeep(rulesets)}
+            console.log(`in ActionTypes.UPLOAD_RULESET, ruleset: ${JSON.stringify(ruleset)} `);
+            // Check if there is already a ruleset with the same name
+            const existingRuleset = state.rulesets.find(r => r.name === ruleset.name);
+
+            if (existingRuleset) {
+                // If there is already a ruleset with the same name, replace it with the new ruleset
+                console.log(`in ActionTypes.UPLOAD_RULESET, there is duplicated ruleset: ${existingRuleset.name} `);
+                return {...state};
+            } else {
+                const rulesets = state.rulesets.concat(ruleset);
+                return { ...state, rulesets: cloneDeep(rulesets), uploadedRules: cloneDeep(rulesets) }
+            }
         }
 
         case ActionTypes.ADD_RULESET: {
 
             const { name } = action.payload;
-            const rulset = { name, attributes: attributesPredefined.attributes, decisions: []};
+            const rulset = { name, attributes: attributesPredefined.attributes, decisions: [] };
             console.log(`in ActionTypes.ADD_RULESET, rulset: ${JSON.stringify(rulset)} `);
             const count = state.rulesets.length === 0 ? 0 : state.rulesets.length;
-             return { ...state, rulesets: state.rulesets.concat(rulset),  activeRuleset: count}
+            return { ...state, rulesets: state.rulesets.concat(rulset), activeRuleset: count }
         }
 
         case ActionTypes.UPDATE_RULESET_INDEX: {
 
             const { name } = action.payload;
             const index = findIndex(state.rulesets, { name });
-             return { ...state, activeRuleset: index}
+            return { ...state, activeRuleset: index }
         }
-        
+
         case ActionTypes.ADD_DECISION: {
 
             const { condition, metadata } = action.payload;
@@ -193,54 +203,64 @@ function ruleset(state = initialState, action='') {
         }
 
         case ActionTypes.ADD_ATTRIBUTE: {
-           const { attribute } = action.payload;
-           const activeRuleSet =  { ...state.rulesets[state.activeRuleset] };
-           activeRuleSet.attributes.push(attribute);
+            const { attribute } = action.payload;
+            const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
+            activeRuleSet.attributes.push(attribute);
 
-            return { ...state,
-                    updatedFlag: true,
-                    rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)}
+            return {
+                ...state,
+                updatedFlag: true,
+                rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
+            }
         }
-            
+
         case ActionTypes.UPDATE_ATTRIBUTE: {
             const { attribute, index } = action.payload;
-            const activeRuleSet =  { ...state.rulesets[state.activeRuleset] };
+            const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             activeRuleSet.attributes.splice(index, 1, attribute);
 
-            return { ...state,
+            return {
+                ...state,
                 updatedFlag: true,
-                rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)}
+                rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
+            }
         }
 
         case ActionTypes.REMOVE_ATTRIBUTE: {
 
             const { index } = action.payload;
-            const activeRuleSet =  { ...state.rulesets[state.activeRuleset] };
+            const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             activeRuleSet.attributes.splice(index, 1);
 
-            return { ...state,
+            return {
+                ...state,
                 updatedFlag: true,
-                rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)}
+                rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
+            }
         }
 
         case ActionTypes.RESET_ATTRIBUTE: {
-            const activeRuleSet =  { ...state.rulesets[state.activeRuleset] };
-            if(state.uploadedRules[state.activeRuleset] && state.uploadedRules[state.activeRuleset].attributes) {
+            const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
+            if (state.uploadedRules[state.activeRuleset] && state.uploadedRules[state.activeRuleset].attributes) {
                 activeRuleSet.attributes = cloneDeep(state.uploadedRules[state.activeRuleset].attributes);
 
-            return { ...state,
-                rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)}
+                return {
+                    ...state,
+                    rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
+                }
             }
             return { ...state };
         }
 
         case ActionTypes.RESET_DECISION: {
-            const activeRuleSet =  { ...state.rulesets[state.activeRuleset] };
-            if(state.uploadedRules[state.activeRuleset] && state.uploadedRules[state.activeRuleset].decisions) {
+            const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
+            if (state.uploadedRules[state.activeRuleset] && state.uploadedRules[state.activeRuleset].decisions) {
                 activeRuleSet.decisions = cloneDeep(state.uploadedRules[state.activeRuleset].decisions);
 
-            return { ...state,
-                rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)}
+                return {
+                    ...state,
+                    rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
+                }
             }
             return { ...state };
         }
@@ -250,9 +270,11 @@ function ruleset(state = initialState, action='') {
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             console.log(`in MOVE_RULE_UP, action.payload: ${JSON.stringify(action.payload)} `);
             const rulesets = moveRuleUpByIndex(activeRuleSet, ruleIndex);
-            return { ...state,
+            return {
+                ...state,
                 updatedFlag: true,
-                rulesets: replaceRulesetByIndex(state.rulesets, rulesets, state.activeRuleset)}
+                rulesets: replaceRulesetByIndex(state.rulesets, rulesets, state.activeRuleset)
+            }
         }
 
         case ActionTypes.MOVE_RULE_DOWN: {
@@ -260,9 +282,11 @@ function ruleset(state = initialState, action='') {
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             console.log(`in MOVE_RULE_DOWN, action.payload: ${JSON.stringify(action.payload)} `);
             const rulesets = moveRuleDownByIndex(activeRuleSet, ruleIndex);
-            return { ...state,
+            return {
+                ...state,
                 updatedFlag: true,
-                rulesets: replaceRulesetByIndex(state.rulesets, rulesets, state.activeRuleset)}
+                rulesets: replaceRulesetByIndex(state.rulesets, rulesets, state.activeRuleset)
+            }
         }
 
         case ActionTypes.UPLOAD_LIST: {

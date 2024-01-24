@@ -73,7 +73,7 @@ class ToolBar extends Component {
             <div className="attr-link" onClick={this.handleReset}>
                  <span className="reset-icon" /><span className="text">Reset</span> 
             </div>
-            <div><Search onConfirm={this.handleSearch} onChange={this.handleSearch}/></div>
+            {/* <div><Search onConfirm={this.handleSearch} onChange={this.handleSearch}/></div> */}
         </div>)
     }
 }

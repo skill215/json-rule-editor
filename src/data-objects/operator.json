@@ -2,12 +2,12 @@
     "string": [
         "equal",
         "notEqual",
-        "contain",
+        "contains",
         "notContain",
         "inList",
         "notInList",
         "longerThan",
         "shorterThan",
-        "REMatch"
+        "match"
     ]
 }

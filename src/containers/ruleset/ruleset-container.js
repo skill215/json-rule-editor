@@ -189,6 +189,12 @@ class RulesetContainer extends Component {
 
   getKlnames = () => {
     const { keywords: klists } = this.props.ruleset;
+
+    if (!klists) {
+      console.error('klists is undefined');
+      return [];
+    }
+
     console.log(`klists in ruleset-container: ${JSON.stringify(klists)}`);
     const klNames = klists.map(klist => klist.name);
     console.log(`klNames in ruleset-container: ${JSON.stringify(klNames)}`);

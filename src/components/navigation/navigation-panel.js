@@ -12,7 +12,9 @@ import { faBars, faSquarePlus, faCloudArrowUp, faSliders } from '@fortawesome/fr
 //                  { name: 'Upload Rules', navigate: './home', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu' },
 //                 { name: 'Appearance', navigate: './appearance', iconClass: "icon", fontIcons: faSliders, linkClass: 'navmenu'} ];
 const navmenu = [{ name: 'Create Rules', navigate: './create-ruleset', iconClass: "icon", fontIcons: faSquarePlus, linkClass: 'navmenu' },
-{ name: 'Upload Rules', navigate: './home', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu' }];
+{ name: 'Upload Rules', navigate: './upload', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu' },
+{ name: 'Get From Server', navigate: './fetch', iconClass: "icon", fontIcons: faSliders, linkClass: 'navmenu' }
+];
 class NavigationPanel extends Component {
 
     constructor(props) {

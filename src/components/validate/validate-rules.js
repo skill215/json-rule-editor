@@ -36,7 +36,16 @@ class ValidateRules extends Component {
     }
 
     handleValue(e, index) {
-        const attribute = { ...this.state.conditions[index], value: e.target.value };
+
+        let tmpvalue = e.target.value;
+
+        // Replace all "," with ";"
+        if (tmpvalue.includes(',')) {
+          tmpvalue = tmpvalue.replace(/,/g, ';');
+          console.warn("',' is not allowed, replaced with ';'");
+        }
+
+        const attribute = { ...this.state.conditions[index], value: tmpvalue };
         const conditions = [ ...this.state.conditions.slice(0, index), attribute, ...this.state.conditions.slice(index + 1)];
         this.setState({ conditions });
     }
@@ -64,10 +73,10 @@ class ValidateRules extends Component {
         this.props.sendValidate(facts, this.props.ruleset)
             .then(sendResult => {
                 console.log(`sendResult == ${JSON.stringify(sendResult)}`);
-                if (sendResult && sendResult.success == true) {
+                if (sendResult && sendResult.data.success == true) {
                     this.setState({
                         loading: false, 
-                        outcomes: sendResult.data ? sendResult.data.message : '', 
+                        outcomes: sendResult.data.success ? sendResult.data.data.message : '', 
                         result: true, 
                         error: false, 
                         errorMessage: '',
