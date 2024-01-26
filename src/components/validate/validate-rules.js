@@ -116,8 +116,7 @@ class ValidateRules extends Component {
 
         const formElements = conditions.map((condition, index) =>
             (<tr key={condition.name + index || 'item'+index}>
-                <td><SelectField options={options} onChange={(e) => this.handleAttribute(e, index)}
-                     value={condition.name} readOnly/></td>
+                <td><div>{condition.name}</div></td>
                 <td colSpan='2'>{<InputField onChange={e => this.handleValue(e, index)} value={condition.value} />}</td>
             </tr>)
         );

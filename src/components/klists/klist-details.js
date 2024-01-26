@@ -4,6 +4,8 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 import AddAttributes from './add-klist';
 import { PanelBox } from '../panel/panel';
 import AddKlists from './add-klist';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleMinus, faFileExport, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 
 class KlistDetails extends Component {
@@ -50,7 +52,7 @@ class KlistDetails extends Component {
 
     remove() {
         const { activeKlist } = this.state;
-        // console.log(`in remove(), activeKlist: ${JSON.stringify(activeKlist)}`);
+        console.log(`in remove(), activeKlist: ${JSON.stringify(activeKlist)}`);
         this.props.removeKlist(activeKlist, activeKlist.name);
         this.setState({ successAlert: true});
     }
@@ -113,9 +115,9 @@ class KlistDetails extends Component {
                     <div className="name">{klist.name}</div>
                     <div className="value">{klist.value.slice(0, 3).join(', ') + (klist.value.length > 3 ? ', ...' : '')}</div>
                     <div className="menu">
-                        <a href="" onClick={(e) => this.handleEdit(e, index)}>Edit</a>
-                        <a href="" onClick={(e) => this.handleRemove(e, klist)}>Remove</a>
-                        <a href="" onClick={(e) => this.handleDownload(e, klist)}>Download</a>
+                        {/* <a href="" onClick={(e) => this.handleEdit(e, index)}><FontAwesomeIcon icon={faPenToSquare}/></a> */}
+                        <a href="" onClick={(e) => this.handleRemove(e, klist)}><FontAwesomeIcon icon={faCircleMinus}/></a>
+                        <a href="" onClick={(e) => this.handleDownload(e, klist)}><FontAwesomeIcon icon={faFileExport}/></a>
                     </div>
                 </PanelBox>
                 {showRuleIndex === index && <AddKlists attribute={klist} addAttribute={this.updateAttribute} cancel={this.cancelAlert} uploadList={this.props.uploadList} clearRuleIndex={this.clearRuleIndex} buttonProps={buttonProps} />

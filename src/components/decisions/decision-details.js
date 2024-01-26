@@ -7,7 +7,7 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 import { transformRuleToTree } from '../../utils/transform';
 import ViewAttribute from '../attributes/view-attributes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faTrash, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faTrash, faArrowUp, faArrowDown, faArrowAltCircleDown, faArrowCircleUp, faArrowCircleDown, faCircleMinus, faEyeSlash, faChevronDown, faEyeDropper, faEye } from '@fortawesome/free-solid-svg-icons';
 
 class DecisionDetails extends Component {
 
@@ -85,7 +85,19 @@ class DecisionDetails extends Component {
         // console.log(`outcomes =========> ${JSON.stringify(props.outcomes)}`);
         console.log(`Sorted Rules =========> ${JSON.stringify(sortedRules)}`);
 
-        this.state = { showCase, sortedRules, submitAlert: false, removeAlert:false, successAlert: false, removeDecisionAlert: false, moveRuleUpAlert: false, moveRuleDownAlert: false, changedFlag: false, successMsg: '', ruleCount: 0};
+        this.state = {
+            showCase, 
+            sortedRules, 
+            submitAlert: false, 
+            removeAlert:false, 
+            successAlert: false, 
+            removeDecisionAlert: false, 
+            moveRuleUpAlert: false, 
+            moveRuleDownAlert: false, 
+            changedFlag: false, 
+            showFullRuleName: false,
+            successMsg: '', 
+            ruleCount: 0};
         this.handleExpand = this.handleExpand.bind(this);
         this.handleRemoveCondition = this.handleRemoveCondition.bind(this);
         this.handleRemoveConditions = this.handleRemoveConditions.bind(this);
@@ -269,25 +281,27 @@ class DecisionDetails extends Component {
         const { outcomes } = this.props;
         const { showCase} = this.state;
         const {sortedRules} = this.state;
+        // const displayRuleName = showFullRuleName ? ruleName : `${ruleName.substring(0, 20)}...`;
         
         console.log(`sortedRules =========> ${JSON.stringify(sortedRules)}`);
         const conditions = Object.keys(sortedRules).map((key) =>
         (<div key={key}>
             <PanelBox className={'boolean'}>
                 <div className="enable">
+                    {/* TODO: The enable/disable status are not updated timely*/}
                     <input type="checkbox" checked={sortedRules[key].enabled} onChange={((e) => this.toggleActive(e, sortedRules[key]))}/>
                     <label style={{ fontSize: '0.8em' }}>{sortedRules[key].enabled ? 'Enabled' : 'Disabled'}</label>
                 </div>
                 <div className="index">{Number(key) + 1}</div>
-                <div className="name">{String(sortedRules[key].ruleName)}</div>
+                <div className="name">{String(`${sortedRules[key].ruleName.substring(0, 50)}`)}</div>
                 {/* <div className="type">conditions <span className="type-badge">{Object.keys(sortedRules[key].conditions).length}</span></div> */}
                 <div className="move">
-                    <a href="" onClick={((e) => this.moveRuleUp(e, sortedRules[key].ruleIndex))}>Up</a>
-                    <a href="" onClick={((e) => this.moveRuleDown(e, sortedRules[key].ruleIndex))}>Down</a>
+                    <a href="" onClick={((e) => this.moveRuleUp(e, sortedRules[key].ruleIndex))}><FontAwesomeIcon icon={faArrowCircleUp} /></a>
+                    <a href="" onClick={((e) => this.moveRuleDown(e, sortedRules[key].ruleIndex))}><FontAwesomeIcon icon={faArrowCircleDown} /></a>
                 </div>
                 <div className="menu">
-                    <a href="" onClick={(e) => this.handleExpand(e, key)}> {showCase[key].case ? 'Collapse' : 'View Conditions'}</a>
-                    <a href="" onClick={((e) => this.handleRemoveCondition(e, String(key)))}>Remove</a>
+                    <a href="" onClick={(e) => this.handleExpand(e, key)}> {showCase[key].case ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}</a>
+                    <a href="" onClick={((e) => this.handleRemoveCondition(e, String(key)))}><FontAwesomeIcon icon={faCircleMinus} /></a>
                 </div>
             </PanelBox>
 

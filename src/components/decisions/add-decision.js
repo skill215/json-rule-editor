@@ -302,6 +302,7 @@ class AddDecision extends Component {
             const addAttribute = { error: {}, name: '', operator: '', value: '' };
             if (value === 'Add fact node') {
                 const error = validateAttribute(this.state.addAttribute, attributes);
+                console.log(`Printing error =========> ${JSON.stringify(error)}`);
                 if (Object.keys(error).length > 0) {
                     let addAttribute = this.state.addAttribute;
                     addAttribute.error = error;

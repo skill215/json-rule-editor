@@ -40,6 +40,7 @@ class CreateRulesetContainer extends Component {
 
     render() {
         const { fileExist, message } = this.state;
+        console.log(`message.body: ${message.body}, message.heading: ${message.heading}, message.type: ${message.type}`);
 
         return (
             <div className="single-panel-container">
