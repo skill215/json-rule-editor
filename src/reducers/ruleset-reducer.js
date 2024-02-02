@@ -100,7 +100,7 @@ const removeDecisionsByOutcome = (rulesets, activeRulesetIndex, outcome) => {
 
 function ruleset(state = initialState, action = '') {
 
-    console.log(`Ruleset in reducer: ${JSON.stringify(state.rulesets)}`)
+    // console.log(`Ruleset in reducer: ${JSON.stringify(state.rulesets)}`)
 
     switch (action.type) {
 
@@ -338,6 +338,41 @@ function ruleset(state = initialState, action = '') {
 
             // Filter out the keyword object with the same name as action.payload.name
             activeRuleSet.keywords = activeRuleSet.keywords.filter(keyword => keyword.name !== name);
+
+            console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
+
+            // Update the ruleset in the rulesets array
+            const rulesets = [...state.rulesets];
+            rulesets[state.activeRuleset] = activeRuleSet;
+
+            return { ...state, rulesets: rulesets, uploadedRules: cloneDeep(rulesets) }
+        }
+
+        case ActionTypes.UPDATE_DEFAULT_ACTION: {
+            const { defaultAction } = action.payload;
+            const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
+            console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
+
+            // Update the defaultAction
+            activeRuleSet.defaultAction = defaultAction;
+
+            console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
+
+            // Update the ruleset in the rulesets array
+            const rulesets = [...state.rulesets];
+            rulesets[state.activeRuleset] = activeRuleSet;
+
+            return { ...state, rulesets: rulesets, uploadedRules: cloneDeep(rulesets) }
+        }
+
+        case ActionTypes.UPDATE_FEATURE: {
+            const { feature } = action.payload;
+            const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
+            console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
+
+            // Update the feature
+            activeRuleSet.feature = feature;
+            console.log(`Updated feature: ${JSON.stringify(activeRuleSet.feature)}`)
 
             console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
 

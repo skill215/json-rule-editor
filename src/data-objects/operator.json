@@ -3,11 +3,19 @@
         "equal",
         "notEqual",
         "contains",
-        "notContain",
-        "inList",
-        "notInList",
+        "in",
+        "notIn",
         "longerThan",
         "shorterThan",
+        "hasPrefix",
+        "hasSuffix",
         "match"
+    ],
+    "abstract": [
+        "isMO",
+        "isMT",
+        "isAO",
+        "isAT",
+        "isConcatenated"
     ]
 }

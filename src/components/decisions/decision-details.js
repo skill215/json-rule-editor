@@ -7,7 +7,7 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 import { transformRuleToTree } from '../../utils/transform';
 import ViewAttribute from '../attributes/view-attributes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faTrash, faArrowUp, faArrowDown, faArrowAltCircleDown, faArrowCircleUp, faArrowCircleDown, faCircleMinus, faEyeSlash, faChevronDown, faEyeDropper, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleUp, faArrowCircleDown, faCircleMinus, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
 
 class DecisionDetails extends Component {
 
@@ -81,9 +81,9 @@ class DecisionDetails extends Component {
             return ({case: false, edit: false, index});
         })
        
-        console.log(`showCase =========> ${JSON.stringify(showCase)}`);
+        // console.log(`showCase =========> ${JSON.stringify(showCase)}`);
         // console.log(`outcomes =========> ${JSON.stringify(props.outcomes)}`);
-        console.log(`Sorted Rules =========> ${JSON.stringify(sortedRules)}`);
+        // console.log(`Sorted Rules =========> ${JSON.stringify(sortedRules)}`);
 
         this.state = {
             showCase, 
@@ -246,10 +246,10 @@ class DecisionDetails extends Component {
     }
 
     renderConditions = (conditions, index) => {
-        console.log(`index =========> ${JSON.stringify(index)}`);
-        console.log(`conditions =========> ${JSON.stringify(conditions)}`);
+        // console.log(`index =========> ${JSON.stringify(index)}`);
+        // console.log(`conditions =========> ${JSON.stringify(conditions)}`);
         const transformedData = transformRuleToTree(conditions);
-        console.log(`transformedData =========> ${JSON.stringify(transformedData)}`);
+        // console.log(`transformedData =========> ${JSON.stringify(transformedData)}`);
         return (
             <div className="rule-flex-container">
                 <div className="decision-box" key={`case - ${index}`}>
@@ -283,7 +283,7 @@ class DecisionDetails extends Component {
         const {sortedRules} = this.state;
         // const displayRuleName = showFullRuleName ? ruleName : `${ruleName.substring(0, 20)}...`;
         
-        console.log(`sortedRules =========> ${JSON.stringify(sortedRules)}`);
+        // console.log(`sortedRules =========> ${JSON.stringify(sortedRules)}`);
         const conditions = Object.keys(sortedRules).map((key) =>
         (<div key={key}>
             <PanelBox className={'boolean'}>

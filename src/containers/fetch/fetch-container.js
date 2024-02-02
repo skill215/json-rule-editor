@@ -15,6 +15,7 @@ import ApperanceContext from '../../context/apperance-context';
 import { faCloudArrowDown } from '@fortawesome/free-solid-svg-icons'
 import SweetAlert from 'react-bootstrap-sweetalert';
 
+const backendIp = "43.192.13.108"
 
 
 class FetchContainer extends Component {
@@ -38,7 +39,7 @@ class FetchContainer extends Component {
     }
 
     handleGetFromServer() {
-        fetch('http://localhost:3001/get-ruleset')
+        fetch('http://'+backendIp+':3001/fetch-ruleset-from-frontend')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

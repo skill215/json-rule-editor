@@ -39,6 +39,14 @@
         {
             "name": "D-IMEI",
             "type": "string"
+        },
+        {
+            "name": "IEI",
+            "type": "string"
+        },
+        {
+            "name": "CHARACTERISTICS",
+            "type": "string"
         }
 	]
 }

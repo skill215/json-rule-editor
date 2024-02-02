@@ -1,0 +1,10 @@
+{
+	"abstractOperator": [
+		"MOBILE-ORIGINATED",
+        "MOBILE-TERMINATED",
+        "APPLICATION-ORIGINATED",
+        "APPLICATION-TERMINATED",
+        "CONCATENATED",
+        "HOME-ROUTING"
+    ]
+}

@@ -10,14 +10,28 @@ const NO_CHANGES_APPLY_BODY = 'You havent modified this ruleset. Nothing to appl
 const BUTTON_PROPS_NO_CHANGES_APPLY = {label: 'Apply Ruleset'};
 export const NO_CHANGES_APPLY_MSG = {header: NO_CHANGES_APPLY_HEADER, body: NO_CHANGES_APPLY_BODY, type: 'warning-panel'};
 
-const MODIFIED_HEADER = 'Submit Ruleset';
-const MODIFIED_BODY = 'You have created / modified this ruleset. Do you want to save these changes into ruleset file?'
+const MODIFIED_HEADER = 'Save Ruleset';
+const MODIFIED_BODY = 'Save ruleset to local file.'
 export const MODIFIED_MSG = {header: MODIFIED_HEADER, body: MODIFIED_BODY, type: 'submit-panel', buttonProps: BUTTON_PROPS_NO_CHANGES,};
 
-const BUTTON_PROPS_APPLY = {label: 'Apply Ruleset'};
-const APPLY_HEADER = 'Apply Ruleset';
-const APPLY_BODY = 'You have created / modified this ruleset. Do you want to apply these changes to remote server?'
-export const APPLY_MSG = {header: APPLY_HEADER, body: APPLY_BODY, type: 'submit-panel', buttonProps: BUTTON_PROPS_APPLY,};
+const BUTTON_PROPS_UPLOAD = {label: 'Upload Ruleset'};
+const UPLOAD_HEADER = 'Upload Ruleset';
+const UPLOAD_BODY = 'Upload this ruleset to rule server. Ruleset with same name will be OVERWRITTEN.'
+export const UPLOAD_MSG = {header: UPLOAD_HEADER, body: UPLOAD_BODY, type: 'warning-panel', buttonProps: BUTTON_PROPS_UPLOAD,};
+
+const BUTTON_PROPS_DEPLOY = {label: 'Deploy Ruleset'};
+const DEPLOY_HEADER = 'Deploy Ruleset';
+const DEPLOY_BODY = 'Upload and Activate this ruleset to production server(s).'
+export const DEPLOY_MSG = {header: DEPLOY_HEADER, body: DEPLOY_BODY, type: 'warning-panel', buttonProps: BUTTON_PROPS_DEPLOY,};
+
+const DELETE_HEADER = 'Delete Ruleset';
+const DELETE_BODY = 'Delete this ruleset in local browser.'
+export const DELETE_MSG = {header: DELETE_HEADER, body: DELETE_BODY, type: 'warning-panel', buttonProps: BUTTON_PROPS_NO_CHANGES,};
+
+const BUTTON_PROPS_DELETE_SERVER = {label: 'Delete Ruleset on Server'};
+const DELETE_SERVER_HEADER = 'Delete Ruleset on Server';
+const DELETE_SERVER_BODY = 'Delete this ruleset on server permanently. This action cannot be undone.'
+export const DELETE_SERVER_MSG = {header: DELETE_SERVER_HEADER, body: DELETE_SERVER_BODY, type: 'warning-panel', buttonProps: BUTTON_PROPS_DELETE_SERVER,};
 
 const NO_ATTRIBUTE_HEADER = 'No Facts';
 const NO_ATTRIBUTE_BODY = 'There is no fact available in the selected ruleset.'

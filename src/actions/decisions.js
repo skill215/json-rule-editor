@@ -53,6 +53,18 @@ export const uploadList = (listContent) => {
     return ({ type: ActionTypes.UPLOAD_LIST, payload});
 }
 
+export const updateDefaultAction = (defaultAction) => {
+    const payload = { defaultAction };
+    console.log(`in updateDefaultAction, payload: ${JSON.stringify(payload)} `);
+    return ({ type: ActionTypes.UPDATE_DEFAULT_ACTION, payload});
+}
+
+export const updateFeature = (feature) => {
+    const payload = { feature };
+    console.log(`in updateFeature, payload: ${JSON.stringify(payload)} `);
+    return ({ type: ActionTypes.UPDATE_FEATURE, payload});
+}
+
 export const handleDecision = (action, editDecision={}, metadata = {}) => (dispatch) => {
     const { condition } = editDecision;
     switch(action) {
@@ -90,6 +102,14 @@ export const handleDecision = (action, editDecision={}, metadata = {}) => (dispa
         case 'UPLOADLIST': {
             //const { listContent } = editDecision;
             return dispatch(uploadList(editDecision));
+        }
+        case 'UPDATEDEFAULTACTION': {
+            const { defaultAction } = editDecision;
+            return dispatch(updateDefaultAction(defaultAction));
+        }
+        case 'UPDATEFEATURE': {
+            const { feature } = editDecision;
+            return dispatch(updateFeature(feature));
         }
     }
 };

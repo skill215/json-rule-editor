@@ -15,6 +15,7 @@ import ApperanceContext from '../../context/apperance-context';
 import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import SweetAlert from 'react-bootstrap-sweetalert';
 
+const backendIp = "43.192.13.108"
 
 function readFile(file, cb) {
   // eslint-disable-next-line no-undef
@@ -135,7 +136,7 @@ class HomeContainer extends Component {
   }
 
   handleGetFromServer() {
-    fetch('http://localhost:3001/get-ruleset')
+    fetch('http://'+backendIp+':3001/fetch-ruleset-from-frontend')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

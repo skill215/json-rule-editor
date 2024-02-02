@@ -11,7 +11,7 @@ class ToolBar extends Component {
         this.handleSearch = this.handleSearch.bind(this);
         this.reset = this.reset.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
-        this.state={ submitAlert: false, resetAlert:false, successAlert: false };
+        this.state={ submitAlert: false, resetAlert:false, successAlert: false, defaultAction: 'ACCEPT', successMsg: ''};
     }
 
     handleReset() {
@@ -70,9 +70,9 @@ class ToolBar extends Component {
             <div className="attr-link" onClick={this.props.handleAdd}>
                 <span className="plus-icon" /><span className="text">Add</span> 
             </div>
-            <div className="attr-link" onClick={this.handleReset}>
+            {/* <div className="attr-link" onClick={this.handleReset}>
                  <span className="reset-icon" /><span className="text">Reset</span> 
-            </div>
+            </div> */}
             {/* <div><Search onConfirm={this.handleSearch} onChange={this.handleSearch}/></div> */}
         </div>)
     }

@@ -6,6 +6,7 @@ import SelectField from '../forms/selectmenu-field';
 import Button from '../button/button';
 import ButtonGroup from '../button/button-groups';
 import operator from '../../data-objects/operator.json';
+import abstractOperator from '../../data-objects/abstract-operator.json';
 import paramsOptions from '../../data-objects/params.json';
 import decisionValidations from '../../validations/decision-validation';
 import Tree from '../tree/tree';
@@ -16,6 +17,7 @@ import { sortBy } from 'lodash/collection';
 import { validateAttribute } from '../../validations/decision-validation';
 import { PLACEHOLDER } from '../../constants/data-types';
 import ApperanceContext from '../../context/apperance-context';
+import { filter } from 'lodash';
 
 
 
@@ -38,7 +40,7 @@ const topLevelOptions = [{ label: 'All', active: false, disable: false },
 const outcomeOptions = [{ label: 'Add Action', active: false, disable: false },
 { label: 'Edit Conditions', active: false, disable: false }];
 
-  
+
 class AddDecision extends Component {
     constructor(props) {
         super(props);
@@ -74,6 +76,8 @@ class AddDecision extends Component {
             formError: '',
             addPathflag: false,
             activeNodeDepth: [activeNode],
+            isOperatorInList: false,
+            isAbstract: false,
 
             //Upload file related states
             uploadedFilesCount: 0,
@@ -171,20 +175,28 @@ class AddDecision extends Component {
     onChangeNewFact(e, name) {
         const addAttribute = { ...this.state.addAttribute };
         addAttribute[name] = e.target.value;
+
+        if (e.target.value === 'ABSTRACT') {
+            this.setState({ isAbstract: true });
+        } else {
+            this.setState({ isAbstract: false });
+        }
+
         this.setState({ addAttribute });
+
     }
 
     onChangeNewOperator(e, name) {
         const addAttribute = { ...this.state.addAttribute };
         addAttribute[name] = e.target.value;
-    
-        // If the operator is 'inList', set a flag in the state
-        if (name === 'operator' && e.target.value === 'inList') {
+
+        // If the operator is 'in' or 'notIn', set a flag in the state
+        if (name === 'operator' && (e.target.value === 'in' || e.target.value === 'notIn')) {
             this.setState({ isOperatorInList: true });
         } else {
             this.setState({ isOperatorInList: false });
         }
-    
+
         this.setState({ addAttribute });
     }
 
@@ -411,15 +423,54 @@ class AddDecision extends Component {
         </div>)
     }
 
+    filterOperatorOptions(operatorOptions, fact = '') {
+        console.log(`operatorOptions in function: ${operatorOptions}`);
+        console.log(`fact: ${fact}`);
+
+        if (!fact) {
+            return operatorOptions;
+        }
+
+        let filteredOperatorOptions;
+        if (fact !== 'ABSTRACT') {
+            // If the fact is not 'abstract', then exclude the 'abstract' operator
+            if (operatorOptions && operatorOptions.length > 0) {
+                switch (fact) {
+                    case 'CONTENT':
+                        let keywords = [];
+                        filteredOperatorOptions = operatorOptions.filter(option => !keywords.includes(option));
+                        break;
+                    // Add more cases as needed
+                    // Replace 'someOtherFact' with the actual fact value you want to check
+                    // Replace 'someOption' with the actual option you want to exclude
+                    case 'ABSTRACT':
+                        filteredOperatorOptions = abstractOperator;
+                        break;
+                    default:
+                        keywords = ['inList', 'notInList'];
+                        filteredOperatorOptions = operatorOptions.filter(option => !keywords.includes(option));
+                        break;
+                }
+                console.log(`filtered (operatorOptions): ${filteredOperatorOptions}`);
+            } else {
+                console.log(`operatorOptions is empty`);
+                filteredOperatorOptions = operatorOptions;
+            }
+        } else {
+            // If the fact is 'abstract', then only allow the 'abstract' operator
+            filteredOperatorOptions = operator['abstract'];
+        }
+        return filteredOperatorOptions;
+    }
+
     fieldPanel() {
         const { attributes, addAttribute, addPathflag } = this.state;
         const attributeOptions = attributes.map(attr => attr.name);
         const attribute = addAttribute.name && attributes.find(attr => attr.name === addAttribute.name);
-        const operatorOptions = attribute && operator[attribute.type];
+        let operatorOptions = attribute && operator[attribute.type];
         const { background } = this.context;
         const klNames = this.props.getKlnames();
 
-        // console.log(`klNames in addDecision: ${JSON.stringify(klNames)}`);
 
         const placeholder = addAttribute.operator === 'contains' || addAttribute.operator === 'doesNotContain' ?
             PLACEHOLDER['string'] : PLACEHOLDER[attribute.type]
@@ -433,10 +484,24 @@ class AddDecision extends Component {
             </div>
 
             <div className="add-field-panel">
-                <div><SelectField options={attributeOptions} onChange={(e) => this.onChangeNewFact(e, 'name')}
-                    value={addAttribute.name} error={addAttribute.error.name} label="Facts" /></div>
-                <div><SelectField options={operatorOptions} onChange={(e) => this.onChangeNewOperator(e, 'operator')}
-                    value={addAttribute.operator} error={addAttribute.error.operator} label="Operator" /></div>
+                <div>
+                    <SelectField
+                        options={attributeOptions}
+                        onChange={(e) => this.onChangeNewFact(e, 'name')}
+                        value={addAttribute.name}
+                        error={addAttribute.error.name}
+                        label="Facts"
+                    />
+                </div>
+                <div>
+                    <SelectField
+                        options={this.filterOperatorOptions(operatorOptions, addAttribute.name)}
+                        onChange={(e) => this.onChangeNewOperator(e, 'operator')}
+                        value={addAttribute.operator}
+                        error={addAttribute.error.operator}
+                        label="Operator"
+                    />
+                </div>
                 {this.state.isOperatorInList ? (
                     <div>
                         <SelectField
@@ -447,9 +512,26 @@ class AddDecision extends Component {
                             label="Value"
                         />
                     </div>
+                ) : this.state.isAbstract ? (
+                    <div>
+                        <SelectField
+                            options={['TRUE', 'FALSE']}
+                            onChange={(e) => this.onChangeInputSelector(e, 'value')}
+                            value={addAttribute.value}
+                            error={addAttribute.error.value}
+                            label="Value"
+                        />
+                    </div>
                 ) : (
-                    <div><InputField onChange={(value) => this.onChangeInput(value, 'value')} value={addAttribute.value}
-                        error={addAttribute.error.value} label="Value" placeholder={placeholder} /></div>
+                    <div>
+                        <InputField
+                            onChange={(value) => this.onChangeInput(value, 'value')}
+                            value={addAttribute.value}
+                            error={addAttribute.error.value}
+                            label="Value"
+                            placeholder={placeholder}
+                        />
+                    </div>
                 )}
             </div>
 

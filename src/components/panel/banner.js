@@ -4,7 +4,7 @@ import Button from '../button/button';
 
 class Banner extends Component {
 
-    constructor(props){
+    constructor(props) {
         super(props);
     }
 
@@ -18,22 +18,31 @@ class Banner extends Component {
             default:
                 return 'btn-dark';
         }
-        
+
     }
 
     render() {
-        const { message } = this.props;
+        const { message, isLoading } = this.props;
         const btnClass = this.getButtonClass();
         return (<div className="banner-container">
-                <div className={`banner ${message.type}`}>
-                    <React.Fragment>
-                        <div>
+            <div className={`banner ${message.type}`}>
+                <React.Fragment>
+                    <div>
                         <header><b>{message.header}</b></header>
-                            <p>{message.body}</p>
+                        <p>{message.body}</p>
+                    </div>
+                    {message.buttonProps &&
+                        <div>
+                            <Button
+                                label={isLoading ? 'Loading...' : message.buttonProps.label}
+                                classname={btnClass}
+                                onConfirm={this.props.onConfirm}
+                                disabled={isLoading}
+                            />
                         </div>
-                        {message.buttonProps && <div><Button label={message.buttonProps.label} classname={btnClass} onConfirm={this.props.onConfirm} /></div>}
-                    </React.Fragment>
-                </div>
+                    }
+                </React.Fragment>
+            </div>
         </div>)
     }
 }
@@ -41,6 +50,7 @@ class Banner extends Component {
 Banner.defaultProps = {
     ruleset: {},
     message: {},
+    isLoading: false,
     onConfirm: () => false,
 };
 
@@ -48,6 +58,7 @@ Banner.propTypes = {
     ruleset: PropTypes.object,
     message: PropTypes.object,
     onConfirm: PropTypes.func,
+    isLoading: PropTypes.bool,
 }
 
 export default Banner;
