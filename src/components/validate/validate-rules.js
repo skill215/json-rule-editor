@@ -82,6 +82,7 @@ class ValidateRules extends Component {
         this.setState({ loading: true });
         this.state.conditions.forEach(condition => {
             const attrProps = attributes.find(attr => attr.name === condition.name);
+            console.log(`attrProps == ${JSON.stringify(attrProps)}`);
             if (attrProps.type === 'number') {
                 facts[condition.name] = Number(condition.value);
             } else if (condition.value && condition.value.indexOf(',') > -1) {

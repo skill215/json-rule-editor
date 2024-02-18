@@ -116,8 +116,8 @@ class KlistDetails extends Component {
                     <div className="value">{klist.value.slice(0, 3).join(', ') + (klist.value.length > 3 ? ', ...' : '')}</div>
                     <div className="menu">
                         {/* <a href="" onClick={(e) => this.handleEdit(e, index)}><FontAwesomeIcon icon={faPenToSquare}/></a> */}
-                        <a href="" onClick={(e) => this.handleRemove(e, klist)}><FontAwesomeIcon icon={faCircleMinus}/></a>
-                        <a href="" onClick={(e) => this.handleDownload(e, klist)}><FontAwesomeIcon icon={faFileExport}/></a>
+                        <a href="" onClick={(e) => this.handleRemove(e, klist)}><FontAwesomeIcon icon={faCircleMinus} title="Delete the list"/></a>
+                        <a href="" onClick={(e) => this.handleDownload(e, klist)}><FontAwesomeIcon icon={faFileExport} title="Export the list to local text file"/></a>
                     </div>
                 </PanelBox>
                 {showRuleIndex === index && <AddKlists attribute={klist} addAttribute={this.updateAttribute} cancel={this.cancelAlert} uploadList={this.props.uploadList} clearRuleIndex={this.clearRuleIndex} buttonProps={buttonProps} />

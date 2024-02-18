@@ -40,12 +40,13 @@ const topLevelOptions = [{ label: 'All', active: false, disable: false },
 const outcomeOptions = [{ label: 'Add Action', active: false, disable: false },
 { label: 'Edit Conditions', active: false, disable: false }];
 
+const editOutcomeOptions = [{ label: 'Edit Action', active: false, disable: false },
+{ label: 'Edit Conditions', active: false, disable: false }];
 
 class AddDecision extends Component {
     constructor(props) {
         super(props);
 
-        const outcome = props.editDecision ? props.outcome : ({ value: '', error: {}, params: [] });
         const addAttribute = { error: {}, name: '', operator: '', value: '' };
         const node = props.editDecision ? props.editCondition.node : {};
         const activeNode = { index: 0, depth: 0 };
@@ -53,7 +54,7 @@ class AddDecision extends Component {
 
         this.state = {
             attributes: props.attributes,
-            outcome: [{
+            outcome: props.editDecision ? props.outcome : [{
                 index: 0,
                 value: eventTypes.length > 0 ? eventTypes[0] : '',
                 error: {},
@@ -65,19 +66,21 @@ class AddDecision extends Component {
             enableOutcomeView: false,
             node,
             metadata: {
-                ruleName: '',
+                ruleName: props.editCondition.ruleName ? props.editCondition.ruleName : '',
                 description: '',
-                enabled: true,
-                ruleIndex: 0
+                enabled: props.editCondition.enabled ? props.editCondition.enabled : false,
+                ruleIndex: props.editCondition.ruleIndex ? props.editCondition.ruleIndex : 0
             },
             topLevelOptions,
             factsButton: factsButton.map(f => ({ ...f, disable: true })),
             outcomeOptions: outcomeOptions.map(f => ({ ...f, disable: true })),
+            editOutcomeOptions: editOutcomeOptions.map(f => ({ ...f, disable: true })),
+
             formError: '',
             addPathflag: false,
             activeNodeDepth: [activeNode],
             isOperatorInList: false,
-            isAbstract: false,
+            isCharacteristics: false,
 
             //Upload file related states
             uploadedFilesCount: 0,
@@ -105,37 +108,49 @@ class AddDecision extends Component {
         this.onChangeInput = this.onChangeInput.bind(this);
         this.onChangeNewOperator = this.onChangeNewOperator.bind(this);
         this.onChangeInputSelector = this.onChangeInputSelector.bind(this);
+        this.replaceTypeWithValue = this.replaceTypeWithValue.bind(this);
 
     }
 
     handleAdd(e) {
         e.preventDefault();
-        // console.log(`Printing props =========> ${JSON.stringify(this.props)}`);
+        console.log(`Printing props =========> ${JSON.stringify(this.props)}`);
+        console.log(`Printing this.state.node =========> ${JSON.stringify(this.state.node)}`);
         const errors = this.state.outcome.map(outcome => decisionValidations(this.state.node, outcome));
+        console.log(`Printing errors =========> ${JSON.stringify(errors)}`);
         const formError = errors.some(error => error.formError);
+        console.log(`Printing outcome =========> ${JSON.stringify(this.state.outcome)}`);
 
         if (formError) {
             const updatedOutcomes = this.state.outcome.map((outcome, index) => ({ ...outcome, error: errors[index].outcome }));
             this.setState({ formError, outcome: updatedOutcomes });
-        } else {
+        } else { 
             const conditions = this.state.outcome.map((outcome, index) => {
                 let outcomeParams = {};
-                outcome.params.forEach(param => {
-                    outcomeParams[param.pkey] = param.pvalue;
-                    console.log(`param: param.pkey: ${param.pkey}; param.pvalue: ${param.pvalue}`);
+                Object.entries(outcome.params).forEach(([key, value]) => {
+                    outcomeParams[key] = value;
+                    console.log(`param: key: ${key}; value: ${value}`);
                 })
-                // console.log(`Printing outcome params ==========> ${JSON.stringify(outcomeParams)}`);
+                console.log(`Printing outcome params ==========> ${JSON.stringify(outcomeParams)}`);
+                console.log(`Printing node =========> ${JSON.stringify(this.state.node)}`);
+                outcome = this.replaceTypeWithValue(outcome);
+                console.log(`Printing outcome =========> ${JSON.stringify(outcome)}`);
                 return transformTreeToRule(this.state.node, outcome, outcomeParams);
                 //return event;
             });
-            // console.log(`Printing new events =========> ${JSON.stringify(conditions)}`);
+            console.log(`Printing new events =========> ${JSON.stringify(conditions)}`);
 
             const mergedConditions = this.mergeEvent(conditions);
-            // console.log(`Printing mergedConditions =========> ${JSON.stringify(mergedConditions)}`);
+            console.log(`Printing mergedConditions =========> ${JSON.stringify(mergedConditions)}`);
             // console.log(`Printing metadata =========> ${JSON.stringify(this.state.metadata)}`);
             this.props.addCondition(mergedConditions, this.state.metadata);
             //conditions.forEach(condition => this.props.addCondition(condition));
         }
+    }
+
+    replaceTypeWithValue(obj) { //Hack to replace type with value
+        const { type, ...rest } = obj;
+        return { ...rest, value: type };
     }
 
     mergeEvent(conditions) {
@@ -176,10 +191,10 @@ class AddDecision extends Component {
         const addAttribute = { ...this.state.addAttribute };
         addAttribute[name] = e.target.value;
 
-        if (e.target.value === 'ABSTRACT') {
-            this.setState({ isAbstract: true });
+        if (e.target.value === 'CHARACTERISTICS') {
+            this.setState({ isCharacteristics: true });
         } else {
-            this.setState({ isAbstract: false });
+            this.setState({ isCharacteristics: false });
         }
 
         this.setState({ addAttribute });
@@ -204,20 +219,21 @@ class AddDecision extends Component {
     onChangeOutcomeValue(e, type, index) {
         const outcomes = [...this.state.outcome];
         outcomes[index][type] = e.target.value;
+        console.log(`Printing outcomes[${index}] =========> ${JSON.stringify(outcomes[index])}`);
         this.setState({ outcome: outcomes });
     }
 
     addParams(outcomeIndex) {
         const { outcome: outcomes } = this.state;
-        const newParams = outcomes[outcomeIndex].params.concat({ pkey: '', pvalue: '' });
+        const newParams = { ...outcomes[outcomeIndex].params, '': '' };
         outcomes[outcomeIndex].params = newParams;
         this.setState({ outcome: outcomes });
     }
 
     handleRemoveParam(index, outcomeIndex) {
         const { outcome: outcomes } = this.state;
-        const newParams = outcomes[outcomeIndex].params.filter((param, ind) => ind !== index);
-        outcomes[outcomeIndex].params = newParams;
+        const paramsKeys = Object.keys(outcomes[outcomeIndex].params);
+        delete outcomes[outcomeIndex].params[paramsKeys[index]];
         this.setState({ outcome: outcomes });
     }
 
@@ -236,25 +252,25 @@ class AddDecision extends Component {
     }
 
     handleOutputParams(e, type, index, outcomeIndex) {
-        // console.log(`Printing index =========> ${index}`);
-        // console.log(`Printing outcomeIndex =========> ${outcomeIndex}`);
-        // console.log(`Printing type =========> ${type}`);
-        // console.log(`Printing e.target.value =========> ${e.target.value}`);
         const { outcome: outcomes } = this.state;
-        const paramOption = paramsOptions["param-type"];
-        const params = [...outcomes[outcomeIndex].params];
-        const newParams = params.map((param, ind) => {
-            if (index === ind) {
-                if (type === 'pvalue' && !param.pkey && e.target.value) {
-                    return { ...param, pkey: paramOption[0], [type]: e.target.value };
-                } else {
-                    return { ...param, [type]: e.target.value };
-                }
-            }
-            return param;
-        });
-        outcomes[outcomeIndex].params = newParams;
-        // console.log(`Printing outcomes =========> ${JSON.stringify(outcomes)}`);
+        const params = { ...outcomes[outcomeIndex].params };
+        const keys = Object.keys(params);
+        console.log(`Printing index =========> ${index}`);
+        console.log(`Printing outcomeIndex =========> ${outcomeIndex}`);
+        console.log(`Printing type =========> ${type}`);
+        console.log(`Printing e.target.value =========> ${e.target.value}`);
+        console.log(`Printing outcomes =========> ${JSON.stringify(outcomes)}`);
+
+        if (type === 'pkey') {
+            const newKey = e.target.value;
+            const oldKey = keys[index];
+            params[newKey] = params[oldKey];
+            delete params[oldKey];
+        } else if (type === 'pvalue') {
+            params[keys[index]] = e.target.value;
+        }
+    
+        outcomes[outcomeIndex].params = params;
         this.setState({ outcome: outcomes });
     }
 
@@ -275,10 +291,11 @@ class AddDecision extends Component {
 
         const factsButton = this.state.factsButton.map(button => ({ ...button, disable: false }));
         const outcomeOptions = this.state.outcomeOptions.map(button => ({ ...button, disable: false }));
+        const editOutcomeOptions = this.state.editOutcomeOptions.map(button => ({ ...button, disable: false }));
 
         this.setState({
             enableTreeView: true, topNodeName: value, node: parentNode,
-            activeNodeDepth: [activeNode], topLevelOptions, factsButton, outcomeOptions
+            activeNodeDepth: [activeNode], topLevelOptions, factsButton, outcomeOptions, editOutcomeOptions
         });
     }
 
@@ -370,7 +387,8 @@ class AddDecision extends Component {
 
         const facts = node.name === 'all' || node.name === 'any' ? parentNodeMenu : factsNodemenu;
         const outcomeMenus = outcomeOptions.map(option => ({ ...option, disable: false }));
-        this.setState({ activeNodeDepth: sortedArr, factsButton: facts, outcomeOptions: outcomeMenus });
+        const editOutcomeMenus = editOutcomeOptions.map(option => ({ ...option, disable: false }));
+        this.setState({ activeNodeDepth: sortedArr, factsButton: facts, outcomeOptions: outcomeMenus, editOutcomeOptions: editOutcomeMenus });
     }
 
     handleFieldCancel() {
@@ -381,7 +399,9 @@ class AddDecision extends Component {
     handleOutputPanel(value) {
         if (value === 'Add Action') {
             const factsOptions = this.state.factsButton.map(fact => ({ ...fact, disable: true }))
-            const options = this.state.outcomeOptions.map(opt => {
+            console.log('Printing outcomeOptions =========> ' + JSON.stringify(this.state.outcomeOptions));
+            console.log('Printing factOptions =========> ' + JSON.stringify(factsOptions));
+            const options = this.props.editDecision ? this.state.editOutcomeOptions : this.state.outcomeOptions.map(opt => {
                 if (opt.label === 'Add Action') {
                     return { ...opt, active: true };
                 }
@@ -389,11 +409,22 @@ class AddDecision extends Component {
             });
             this.setState({
                 enableOutcomeView: true, enableTreeView: false,
-                enableFieldView: false, outcomeOptions: options, factsButton: factsOptions
+                enableFieldView: false, outcomeOptions: options,
+                editOutcomeOptions: options, factsButton: factsOptions
             });
         }
+        if (value === 'Edit Action') {
+            console.log('Printing editOutcomeOptions =========> ' + JSON.stringify(this.state.editOutcomeOptions));
+            const options = this.state.editOutcomeOptions.map(opt => {
+                if (opt.label === 'Edit Action') {
+                    return { ...opt, active: true };
+                }
+                return { ...opt, active: false };
+            });
+            this.setState({ enableOutcomeView: true, enableTreeView: false, enableFieldView: false, outcomeOptions: options });
+        }
         if (value === 'Edit Conditions') {
-            const options = this.state.outcomeOptions.map(opt => {
+            const options = this.state.editOutcomeOptions.map(opt => {
                 if (opt.label === 'Edit Conditions') {
                     return { ...opt, active: true };
                 }
@@ -404,8 +435,9 @@ class AddDecision extends Component {
     }
 
     topPanel() {
-        const { topLevelOptions, factsButton, outcomeOptions, metadata } = this.state;
-        // console.log(`Printing node =========> ${JSON.stringify(this.state.node)}`);
+        const { topLevelOptions, factsButton, outcomeOptions, editOutcomeOptions, metadata } = this.state;
+        console.log(`Printing node =========> ${JSON.stringify(this.state.node)}`);
+        console.log(`Printing metadata =========> ${JSON.stringify(metadata)}`);
         return (<div className="add-decision-step">
             <div className="step0">
                 <div>Rule Name:</div>
@@ -419,7 +451,10 @@ class AddDecision extends Component {
             </div>
             <div className="step1"><div>Step 1: Add Toplevel</div><ButtonGroup buttons={topLevelOptions} onConfirm={this.handleTopNode} /></div>
             <div className="step2"><div> Step 2: Add / Remove Condition</div><ButtonGroup buttons={factsButton} onConfirm={this.handleChildrenNode} /></div>
-            <div className="step3"><div> Step 3: Add Action</div><ButtonGroup buttons={outcomeOptions} onConfirm={this.handleOutputPanel} /></div>
+            <div className="step3">
+                <div> Step 3: Add Action</div>
+                <ButtonGroup buttons={this.props.editDecision ? editOutcomeOptions : outcomeOptions} onConfirm={this.handleOutputPanel} />
+            </div>
         </div>)
     }
 
@@ -432,7 +467,7 @@ class AddDecision extends Component {
         }
 
         let filteredOperatorOptions;
-        if (fact !== 'ABSTRACT') {
+        if (fact !== 'CHARACTERISTICS') {
             // If the fact is not 'abstract', then exclude the 'abstract' operator
             if (operatorOptions && operatorOptions.length > 0) {
                 switch (fact) {
@@ -443,7 +478,7 @@ class AddDecision extends Component {
                     // Add more cases as needed
                     // Replace 'someOtherFact' with the actual fact value you want to check
                     // Replace 'someOption' with the actual option you want to exclude
-                    case 'ABSTRACT':
+                    case 'CHARACTERISTICS':
                         filteredOperatorOptions = abstractOperator;
                         break;
                     default:
@@ -495,7 +530,7 @@ class AddDecision extends Component {
                 </div>
                 <div>
                     <SelectField
-                        options={this.filterOperatorOptions(operatorOptions, addAttribute.name)}
+                        options={addAttribute.name ? this.filterOperatorOptions(operatorOptions, addAttribute.name) : []}
                         onChange={(e) => this.onChangeNewOperator(e, 'operator')}
                         value={addAttribute.operator}
                         error={addAttribute.error.operator}
@@ -512,7 +547,7 @@ class AddDecision extends Component {
                             label="Value"
                         />
                     </div>
-                ) : this.state.isAbstract ? (
+                ) : this.state.isCharacteristics ? (
                     <div>
                         <SelectField
                             options={['TRUE', 'FALSE']}
@@ -572,7 +607,7 @@ class AddDecision extends Component {
                 <div key={index}>
                     <div className="add-field-panel half-width" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <SelectField options={eventTypes} onChange={(e) => this.onChangeOutcomeValue(e, 'value', index)} readOnly={editDecision} />
+                            <SelectField options={eventTypes} value={outcome.type} onChange={(e) => this.onChangeOutcomeValue(e, 'type', index)} />
                         </div>
                         <div className={`attributes-header ${background}`}>
                             <div className="attr-link" onClick={() => this.addParams(index)} style={{ marginRight: '10px' }}>
@@ -581,11 +616,11 @@ class AddDecision extends Component {
                         </div>
                     </div>
                     <div>
-                        {outcome.params.length > 0 && outcome.params.map((param, ind) =>
+                        {outcome.params && Object.keys(outcome.params).map((key, ind) =>
                             <div key={ind} className="add-field-panel" style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
                                     <label style={{ marginRight: '10px' }}>Key</label>
-                                    <select value={param.pkey} onChange={(e) => this.handleOutputParams(e, 'pkey', ind, index)}>
+                                    <select value={key} onChange={(e) => this.handleOutputParams(e, 'pkey', ind, index)}>
                                         {paramOptions.map((option, index) =>
                                             <option key={index} value={option}>{option}</option>
                                         )}
@@ -593,7 +628,7 @@ class AddDecision extends Component {
                                 </div>
                                 <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
                                     <label style={{ marginRight: '10px' }}>Value</label>
-                                    <InputField onChange={(value) => this.handleOutputParams(value, 'pvalue', ind, index)} value={param.pvalue} />
+                                    <InputField onChange={(value) => this.handleOutputParams(value, 'pvalue', ind, index)} value={outcome.params[key]} />
                                 </div>
                                 <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
                                     <button onClick={() => this.handleRemoveParam(ind, index)}>Remove</button>
@@ -602,7 +637,6 @@ class AddDecision extends Component {
                     </div>
                 </div>
             ))}
-
         </Panel>)
     }
 
@@ -636,7 +670,7 @@ class AddDecision extends Component {
                     {this.addPanel()}
                     {this.state.formError && <p className="form-error"> {this.state.formError}</p>}
                     <div className="btn-group">
-                        <Button label={buttonProps.primaryLabel} onConfirm={this.handleAdd} classname="primary-btn" type="submit" />
+                        <Button label={buttonProps.primaryLabel} onConfirm={this.handleAdd} classname="primary-btn" type="submit" title="Finalize and set the rule" />
                         <Button label={buttonProps.secondaryLabel} onConfirm={this.handleCancel} classname="cancel-btn" />
                     </div>
 

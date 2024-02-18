@@ -6,9 +6,9 @@ export const removeDecision = (decisionIndex) => {
     return ({ type: ActionTypes.REMOVE_DECISION, payload});
 }
 
-export const updateDecision = (rule, ruleIndex) => {
-    const payload = { rule, ruleIndex };
-
+export const updateDecision = (condition, metadata, ruleIndex) => {
+    const payload = { condition, metadata, ruleIndex };
+    console.log(`in updateDecision, payload: ${JSON.stringify(payload)} `);
     return ({ type: ActionTypes.UPDATE_DECISION, payload});
 }
 
@@ -72,10 +72,10 @@ export const handleDecision = (action, editDecision={}, metadata = {}) => (dispa
             console.log(`in handleDecision, metadata: ${JSON.stringify(metadata)} `);
             return dispatch(addDecision(condition, metadata));
         }
-        // case 'UPDATE': {
-        //     const { decisionIndex } = editDecision;
-        //     return dispatch(updateDecision(condition, decisionIndex)); 
-        // }
+        case 'UPDATE': {
+            const { decisionIndex } = editDecision;
+            return dispatch(updateDecision(condition, metadata, decisionIndex)); 
+        }
         case 'REMOVECONDITION': {
             const { decisionIndex } = editDecision;
             return dispatch(removeDecision(decisionIndex));

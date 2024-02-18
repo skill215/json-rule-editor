@@ -15,7 +15,7 @@ import ApperanceContext from '../../context/apperance-context';
 import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import SweetAlert from 'react-bootstrap-sweetalert';
 
-const backendIp = "43.192.13.108"
+const backendIp = "161.189.188.48"
 
 function readFile(file, cb) {
   // eslint-disable-next-line no-undef

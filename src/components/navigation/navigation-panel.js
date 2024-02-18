@@ -11,10 +11,9 @@ import { faBars, faSquarePlus, faCloudArrowUp, faSliders } from '@fortawesome/fr
 // const navmenu = [{ name: 'Create Rules', navigate: './create-ruleset', iconClass: "icon", fontIcons: faSquarePlus, linkClass: 'navmenu'},
 //                  { name: 'Upload Rules', navigate: './home', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu' },
 //                 { name: 'Appearance', navigate: './appearance', iconClass: "icon", fontIcons: faSliders, linkClass: 'navmenu'} ];
-const navmenu = [{ name: 'Create Rules', navigate: './create-ruleset', iconClass: "icon", fontIcons: faSquarePlus, linkClass: 'navmenu' },
-{ name: 'Upload Rules', navigate: './upload', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu' },
-{ name: 'Get From Server', navigate: './fetch', iconClass: "icon", fontIcons: faSliders, linkClass: 'navmenu' }
-];
+const navmenu = [{ name: 'Create Rules', navigate: './create-ruleset', iconClass: "icon", fontIcons: faSquarePlus, linkClass: 'navmenu', title: 'Create new ruleset' },
+{ name: 'Upload Rules', navigate: './upload', iconClass: "icon", fontIcons: faCloudArrowUp, linkClass: 'navmenu', title: 'Upload ruleset from local file' },
+{ name: 'Get From Server', navigate: './fetch', iconClass: "icon", fontIcons: faSliders, linkClass: 'navmenu', title: 'Fetch ruleset from server' }];
 class NavigationPanel extends Component {
 
     constructor(props) {
@@ -39,7 +38,7 @@ class NavigationPanel extends Component {
     render() {
         const { closedState, loggedIn } = this.props;
         let rulesetLink = this.props.rulenames.length > 0 ?
-         [{ name: 'Ruleset', sublinks: this.props.rulenames, iconClass:"rules-icon", linkClass: 'link-heading'}] : [];
+         [{ name: 'Ruleset', sublinks: this.props.rulenames, iconClass:"rules-icon", linkClass: 'link-heading', title: ""}] : [];
 
         rulesetLink = rulesetLink.concat(navmenu);
 

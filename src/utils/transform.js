@@ -5,10 +5,10 @@ import { join } from 'lodash/array';
 const nodeSvgShape = {
     shape: 'circle',
     shapeProps: {
-      fill: '#1ABB9C',
-      r: 10,
+        fill: '#1ABB9C',
+        r: 10,
     },
-  };
+};
 
 const mapFactToChildren = (fact) => {
     if (has(fact, 'fact') && has(fact, 'operator') && has(fact, 'value')) {
@@ -19,46 +19,50 @@ const mapFactToChildren = (fact) => {
         }
 
         attributes[fact.operator] = value;
-        
+
         if (fact.path) {
             attributes['path'] = fact.path;
         }
-        return ({name: fact.fact, attributes});
+        return ({ name: fact.fact, attributes });
     }
     return undefined;
 };
 
 const mapParentNode = (name) => {
-    return ({name, nodeSvgShape, children : []});
+    return ({ name, nodeSvgShape, children: [] });
 };
 
 //global variable to determine the depth
 let depthCount;
 
-const mapConditionsToChildren = (condition={}, depth) => {
+const mapConditionsToChildren = (condition = {}, depth) => {
     const parentNode = has(condition, 'all') ? 'all' : 'any';
     const node = mapParentNode(parentNode);
     const childrenNode = condition[parentNode] && condition[parentNode].map(facts => {
         if (has(facts, 'fact')) {
-                        return mapFactToChildren(facts);
+            return mapFactToChildren(facts);
         } else {
-                        depthCount = depth > depthCount ? depth : depthCount;
+            depthCount = depth > depthCount ? depth : depthCount;
             return mapConditionsToChildren(facts, depth + 1);
         }
     });
     node.children = childrenNode;
-        return node;
+    return node;
 };
 
 export const transformRuleToTree = (conditions = []) => {
     depthCount = 0;
+    console.log(`conditions in transformRuleToTree: ${JSON.stringify(conditions)}`);
     if (isArray(conditions)) {
         return conditions.map((condition) => {
-                        depthCount = 0;
-                        return { node: mapConditionsToChildren(condition.conditions, 1), depthCount, index: condition.index, event: condition.event };
+            depthCount = 0;
+            ruleName = conditions.ruleName;
+            ruleIndex = conditions.ruleIndex;
+            enabled = conditions.enabled;
+            return { node: mapConditionsToChildren(condition.conditions, 1), depthCount, index: condition.index, event: condition.event};
         });
-    } 
-        return { node: mapConditionsToChildren(conditions.conditions, 1), depthCount, index: 0, event: conditions.event};
+    }
+    return { node: mapConditionsToChildren(conditions.conditions, 1), depthCount, index: 0, event: conditions.event, ruleName: conditions.ruleName, ruleIndex: conditions.ruleIndex, enabled: conditions.enabled };
 };
 
 const mapChildNodeToFacts = (children) => {
@@ -98,5 +102,5 @@ const mapNodeToCondition = (node) => {
 
 
 export const transformTreeToRule = (node = {}, outcome, params) => {
-    return ({conditions: mapNodeToCondition(node), event: { type: outcome.value, params }});
+    return ({ conditions: mapNodeToCondition(node), event: { type: outcome.value, params } });
 }

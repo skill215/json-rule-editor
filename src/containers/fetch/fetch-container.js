@@ -15,7 +15,7 @@ import ApperanceContext from '../../context/apperance-context';
 import { faCloudArrowDown } from '@fortawesome/free-solid-svg-icons'
 import SweetAlert from 'react-bootstrap-sweetalert';
 
-const backendIp = "43.192.13.108"
+const backendIp = "161.189.188.48"
 
 
 class FetchContainer extends Component {

@@ -26,6 +26,7 @@ class Decision extends Component {
             defaultActionSetFlag: false,
             feature: props.feature || 'Spamming Protection',
             featureSetFlag: false,
+            ruleDetailUpdatedFlag: false,
         };
         this.handleAdd = this.handleAdd.bind(this);
         this.updateCondition = this.updateCondition.bind(this);
@@ -43,6 +44,7 @@ class Decision extends Component {
         this.getKlnames = this.getKlnames.bind(this);
         this.handleDefaultActionChange = this.handleDefaultActionChange.bind(this);
         this.onChangeNewFeature = this.onChangeNewFeature.bind(this);
+        this.setRuleDetailUpdatedFlag = this.setRuleDetailUpdatedFlag.bind(this);
     }
 
     handleSearch = (value) => {
@@ -61,22 +63,24 @@ class Decision extends Component {
         const decision = this.props.decisions[decisionIndex];
         console.log(`in editCondition, decision: ${JSON.stringify(decision)} `);
         const editCondition = transformRuleToTree(decision);
+        console.log(`in editCondition, editCondition: ${JSON.stringify(editCondition)} `);
         let outputParams = [];
         if (decision.event.params && Object.keys(decision.event.params).length > 0) {
             outputParams = Object.keys(decision.event.params).map(key => ({ pkey: key, pvalue: decision.event.params[key] }))
         }
 
         this.setState({
-            editCaseFlag: true, editCondition,
+            editCaseFlag: true, 
+            editCondition,
             editDecisionIndex: decisionIndex,
-            editOutcome: { value: decision.event.type, params: outputParams }
+            editOutcome: decision.event,
         });
     }
 
     addCondition(condition, metadata) {
         //console.log(`in addCondition, this.props: ${JSON.stringify(this.props)} `);
         const updatedMetadata = { ...metadata, ruleIndex: this.props.decisions.length };
-        // console.log(`in addCondition, updatedMetadata: ${JSON.stringify(updatedMetadata)} `);
+        console.log(`in addCondition, updatedMetadata: ${JSON.stringify(updatedMetadata)} `);
         this.props.handleDecisions('ADD', { condition }, updatedMetadata);
 
         // HACK: set the default action and feature when the user firstly add a condition
@@ -88,15 +92,25 @@ class Decision extends Component {
             this.setState({ featureSetFlag: true });
             this.props.handleDecisions('UPDATEFEATURE', { feature: this.state.feature });
         }
-        this.setState({ showAddRuleCase: false });
+        console.log(`in addCondition, set the ruleDetailUpdatedFlag to true `);
+
+        this.setState({ showAddRuleCase: false, ruleDetailUpdatedFlag: true});
     }
 
-    updateCondition(condition) {
+    updateCondition(condition, metadata) {
+        console.log(`in updateCondition, condition: ${JSON.stringify(condition)} `);
+        console.log(`in updateCondition, metadata: ${JSON.stringify(metadata)} `);
         this.props.handleDecisions('UPDATE', {
             condition,
             decisionIndex: this.state.editDecisionIndex
-        });
-        this.setState({ editCaseFlag: false });
+        }, metadata);
+        console.log(`in updateCondition, set the ruleDetailUpdatedFlag to true `);
+        this.setState({ editCaseFlag: false, ruleDetailUpdatedFlag: true });
+    }
+
+    setRuleDetailUpdatedFlag(flag) {
+        console.log(`in setRuleDetailUpdatedFlag, flag: ${JSON.stringify(flag)} `);
+        this.setState({ ruleDetailUpdatedFlag: flag });
     }
 
     removeCase(decisionIndex) {
@@ -111,6 +125,10 @@ class Decision extends Component {
     updateRule(rule) {
         // console.log(`in updateRule in decision.js, rule: ${JSON.stringify(rule)} `);
         this.props.handleDecisions('UPDATERULE', rule);
+        console.log(`in updateRule, set the ruleDetailUpdatedFlag to true `);
+
+        this.setState({ editCaseFlag: false, ruleDetailUpdatedFlag: true });
+
     }
 
     // updateRule(rule) {}
@@ -174,15 +192,14 @@ class Decision extends Component {
         const { features: featureArray } = features;
         const featureOptions = featureArray.map(feature => ({ value: feature, label: feature }));
 
-        console.log(`featureOptions in decision.js: ${JSON.stringify(featureOptions)}`);
+        // console.log(`featureOptions in decision.js: ${JSON.stringify(featureOptions)}`);
 
         return (<div className="rulecases-container">
 
-            {<ToolBar handleAdd={this.handleAdd} />}
-            <div style={{ display: 'flex' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ marginRight: '30px' }}>
                     <label htmlFor="feature">Apply on Feature:</label>
-                    <select id="feature" onChange={(e) => this.onChangeNewFeature(e, 'feature')} value={feature}>
+                    <select id="feature" onChange={(e) => this.onChangeNewFeature(e, 'feature')} value={feature} title="Select the feature that this rule should be applied to">
                         {featureOptions.map(option => (
                             <option key={option.value} value={option.value}>
                                 {option.label}
@@ -192,11 +209,12 @@ class Decision extends Component {
                 </div>
                 <div>
                     <label htmlFor="defaultAction">Default Action:</label>
-                    <select id="defaultAction" onChange={this.handleDefaultActionChange} value={defaultAction}>
+                    <select id="defaultAction" onChange={this.handleDefaultActionChange} value={defaultAction} title="Default Action when no rule is matched">
                         <option value="ACCEPT">ACCEPT</option>
                         <option value="REJECT">REJECT</option>
                     </select>
                 </div>
+                <ToolBar handleAdd={this.handleAdd} />
             </div>
 
             {this.state.showAddRuleCase && <AddDecision attributes={this.props.attributes} addCondition={this.addCondition} cancel={this.cancelAddAttribute} uploadList={this.uploadList} getKlnames={this.getKlnames} buttonProps={buttonProps} />}
@@ -204,7 +222,7 @@ class Decision extends Component {
             {this.state.editCaseFlag && <AddDecision attributes={this.props.attributes} editCondition={this.state.editCondition}
                 outcome={this.state.editOutcome} editDecision addCondition={this.updateCondition} cancel={this.cancelAddAttribute} getKlnames={this.getKlnames} buttonProps={editButtonProps} />}
 
-            <DecisionDetails outcomes={filteredOutcomes} editCondition={this.editCondition} removeCase={this.removeCase} removeDecisions={this.removeDecisions} updateRule={this.updateRule} moveUp={this.moveUp} moveDown={this.moveDown} getKlnames={this.getKlnames} />
+            <DecisionDetails outcomes={filteredOutcomes} editCondition={this.editCondition} ruleDetailUpdatedFlag={this.state.ruleDetailUpdatedFlag} removeCase={this.removeCase} removeDecisions={this.removeDecisions} updateRule={this.updateRule} moveUp={this.moveUp} moveDown={this.moveDown} getKlnames={this.getKlnames} setRuleDetailUpdatedFlag={this.setRuleDetailUpdatedFlag}/>
 
             {!bannerflag && Object.keys(outcomes).length < 1 && <Banner message={this.state.message} onConfirm={this.handleAdd} />}
         </div>);
@@ -221,6 +239,8 @@ Decision.defaultProps = ({
     moveUp: () => false,
     moveDown: () => false,
     getKlnames: () => false,
+    defaultAction: '',
+    feature: '', 
 });
 
 Decision.propTypes = ({
@@ -233,6 +253,8 @@ Decision.propTypes = ({
     moveUp: PropTypes.func,
     moveDown: PropTypes.func,
     getKlnames: PropTypes.func,
+    defaultAction: PropTypes.string,
+    feature: PropTypes.string,
 });
 
 export default Decision;

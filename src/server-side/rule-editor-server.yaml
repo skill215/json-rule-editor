@@ -3,7 +3,7 @@ server:
   host: "localhost"
 smsc:
   - hostname: "smsc1"
-    ip: "68.79.45.45"
+    ip: "161.189.106.237"
     port: "8030"
   - hostname: "smsc2"
     ip: "192.168.1.2"

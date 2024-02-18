@@ -3,7 +3,7 @@ export const validateOutcome = (outcome) => {
     const error = {};
     console.log(`outcome in validateOutcome: ${JSON.stringify(outcome)}`);
 
-    if (!outcome.value) {
+    if (!outcome.value && !outcome.type) { //Hack: for edit rule scenario
         error.value = 'Please specify the outcome value'
     }
 
@@ -26,7 +26,7 @@ const fieldValidationByType = (value, type, operator) => {
                 // Validate if the attribute value is a valid regex.
                 // TODO: This is a very basic regex validation. It in fact puts limitations on the regex that can be used.
                 // on the RE patterns that this RULES engine can support.
-                const re = /^\/(.*)\/([gimuy]*)$/;
+                const re = /^(.*)([gimuy]*)$/;
                 return re.test(value)
             } else {
                 // Validate if the attribute value is a valid string with digits and alphabetic chars.
@@ -71,7 +71,7 @@ export const validateAttribute = (attribute, attributes) => {
     if (isEmpty(attribute.value)) {
         error.value = 'Please specify the attribute value'
     } else {
-        if (attribute.name) {
+        if (attribute.name) { // TODO: Add the validate logic for regular expression.
             const attProps = attributes.find(att => att.name === attribute.name);
             if (attProps && attProps.type) {
                 if (!fieldValidationByType(attribute.value, attProps.type, attribute.operator)) {

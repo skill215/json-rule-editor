@@ -33,7 +33,7 @@ const NavParentLink = ({ link, onConfirm, index, visible }) => {
       <a href="" className={`link ${visible ? 'active': ''}`} >
         <span className={link.iconClass} />
         {link.fontIcons && <FontAwesomeIcon icon={link.fontIcons} />}
-        <span className="text">{link.name}</span>
+        <span className="text" title={link.title}>{link.name}</span>
       </a>
     </li>);
 };

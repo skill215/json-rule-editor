@@ -261,9 +261,9 @@ class AddKlists extends Component {
                             </div>
                         </div>
                         <div className="add-field-panel">
-                            <div> Specify List Name:</div>
+                            <div title="Rename the list optionally. Or the list name will be the filename."> (Opt.)Specify List Name:</div>
                             <div>
-                                <input type="text" placeholder="(Opt.) Enter list name" onChange={this.handleNameChange} />
+                                <input type="text" placeholder="Enter list name" onChange={this.handleNameChange} />
                             </div>
                         </div>
                         <div className="btn-group">

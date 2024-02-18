@@ -153,11 +153,25 @@ function ruleset(state = initialState, action = '') {
         }
 
         case ActionTypes.UPDATE_DECISION: {
-            const { decision, ruleIndex } = action.payload;
-            console.log(`in ActionTypes.UPDATE_DECISION, decision: ${JSON.stringify(decision)}, index: ${ruleIndex} `);
+            const { condition, metadata, ruleIndex } = action.payload;
+            console.log(`in ActionTypes.UPDATE_DECISION, condition: ${JSON.stringify(condition)}, metadata: ${JSON.stringify(metadata)}, index: ${ruleIndex} `);
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
 
-            activeRuleSet.decisions = activeRuleSet.decisions.map(d => d.ruleIndex === ruleIndex ? decision : d);
+            activeRuleSet.decisions = activeRuleSet.decisions.map(d => {
+                if (d.ruleIndex == ruleIndex) {
+                    console.log(`in ActionTypes.UPDATE_DECISION, d.ruleIndex: ${d.ruleIndex}, ruleIndex: ${ruleIndex} `);
+                    return {
+                        ...d,
+                        ruleName: metadata.ruleName,
+                        description: metadata.description,
+                        enabled: metadata.enabled,
+                        conditions: condition[0].conditions,
+                        event: condition[0].event
+                    };
+                }
+                return d;
+            });
+
             console.log(`in ActionTypes.UPDATE_DECISION, activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
             return {
                 ...state,

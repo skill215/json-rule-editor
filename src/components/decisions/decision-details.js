@@ -7,29 +7,29 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 import { transformRuleToTree } from '../../utils/transform';
 import ViewAttribute from '../attributes/view-attributes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowCircleUp, faArrowCircleDown, faCircleMinus, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleUp, faArrowCircleDown, faCircleMinus, faEyeSlash, faEye, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 class DecisionDetails extends Component {
 
     static getDerivedStateFromProps(props, state) {
         let sRules = DecisionDetails.getSortedRules(props.outcomes);
-        if ((Object.keys(sRules).length !== state.showCase.length) || (state.changedFlag == true)) {
+        if ((Object.keys(sRules).length !== state.showCase.length) || (state.changedFlag == true) || (props.ruleDetailUpdatedFlag == true)) {
             //console.log(`sRules).length=${Object.keys(sRules).length}, state.showCase.length=${state.showCase.length}`);
-            // if (state.changedFlag == true) {
-            //     console.log(`Rules changed, changedFlag =========> ${JSON.stringify(state.changedFlag)}`);
-            // }
             const showCase = Object.keys(sRules).map((key, index) => {
-                return ({case: false, edit: false, index });
+                return ({ case: false, edit: false, index });
             });
             // console.log(`Rules changed, showCase =========> ${JSON.stringify(showCase)}`);
-            // console.log(`Rules changed, sRUles =========> ${JSON.stringify(sRules)}`);
-            // console.log(`Rules changed, sortedRule =========> ${JSON.stringify(state.sortedRules)}`);
-            return { showCase, sortedRules: Object.values(sRules), changedFlag: false};
+            console.log(`Rules changed, sRUles =========> ${JSON.stringify(sRules)}`);
+            console.log(`Rules changed, sortedRule =========> ${JSON.stringify(state.sortedRules)}`);
+            console.log(`Rule details updated, props.ruleDetailUpdatedFlag =========> ${JSON.stringify(props.ruleDetailUpdatedFlag)}`);
+            console.log(`Rules changed, state.changedFlag =========> ${JSON.stringify(state.changedFlag)}`);
+            props.setRuleDetailUpdatedFlag(false);
+            return { showCase, sortedRules: Object.values(sRules), changedFlag: false };
         }
         return null;
     }
 
-    
+
     static getSortedRules = (input) => {
         let output = {};
 
@@ -60,15 +60,15 @@ class DecisionDetails extends Component {
 
     static getSortedRulesBeta = (input) => {
         let output = [];
-    
+
         // Flatten the input array of arrays into a single array
         input.forEach(subArray => {
             output = [...output, ...subArray];
         });
-    
+
         // Sort the array by index
         output.sort((a, b) => a.index - b.index);
-    
+
         return output;
     }
 
@@ -78,26 +78,27 @@ class DecisionDetails extends Component {
         const sortedRules = DecisionDetails.getSortedRules(props.outcomes);
 
         const showCase = Object.keys(sortedRules).map((key, index) => {
-            return ({case: false, edit: false, index});
+            return ({ case: false, edit: false, index });
         })
-       
+
         // console.log(`showCase =========> ${JSON.stringify(showCase)}`);
         // console.log(`outcomes =========> ${JSON.stringify(props.outcomes)}`);
         // console.log(`Sorted Rules =========> ${JSON.stringify(sortedRules)}`);
 
         this.state = {
-            showCase, 
-            sortedRules, 
-            submitAlert: false, 
-            removeAlert:false, 
-            successAlert: false, 
-            removeDecisionAlert: false, 
-            moveRuleUpAlert: false, 
-            moveRuleDownAlert: false, 
-            changedFlag: false, 
+            showCase,
+            sortedRules,
+            submitAlert: false,
+            removeAlert: false,
+            successAlert: false,
+            removeDecisionAlert: false,
+            moveRuleUpAlert: false,
+            moveRuleDownAlert: false,
+            changedFlag: false,
             showFullRuleName: false,
-            successMsg: '', 
-            ruleCount: 0};
+            successMsg: '',
+            ruleCount: 0
+        };
         this.handleExpand = this.handleExpand.bind(this);
         this.handleRemoveCondition = this.handleRemoveCondition.bind(this);
         this.handleRemoveConditions = this.handleRemoveConditions.bind(this);
@@ -114,7 +115,7 @@ class DecisionDetails extends Component {
 
     handleEdit(e, val) {
         e.preventDefault();
-        this.setState({showRuleIndex: val});
+        this.setState({ showRuleIndex: val });
     }
 
     editCondition(e, decisionIndex) {
@@ -126,8 +127,8 @@ class DecisionDetails extends Component {
     handleExpand(e, index) {
         e.preventDefault();
         const cases = [...this.state.showCase];
-        let updateCase  = cases[index];
-        updateCase = { ...updateCase, case: !updateCase.case}
+        let updateCase = cases[index];
+        updateCase = { ...updateCase, case: !updateCase.case }
         cases[index] = { ...updateCase };
         // console.log(`cases [${index}] =========> ${JSON.stringify(cases)}`);
         this.setState({ showCase: cases });
@@ -160,7 +161,7 @@ class DecisionDetails extends Component {
     removeDecisions = () => {
         // console.log(`this.props =========> ${JSON.stringify(this.props)}`)
         this.props.removeDecisions(this.state.removeIndex);
-        this.setState({ removeDecisionAlert: false, successAlert: true, successMsg: 'Selected conditions are removed', removeIndex: ''});
+        this.setState({ removeDecisionAlert: false, successAlert: true, successMsg: 'Selected conditions are removed', removeIndex: '' });
     }
 
     updateRule = (rule) => {
@@ -177,25 +178,32 @@ class DecisionDetails extends Component {
         e.preventDefault();
         // console.log(`In moveRuleUp, index =========> ${JSON.stringify(index)}`);
         this.props.moveUp(index);
-        this.setState({ changedFlag: true, moveRuleUpAlert: true, successMsg: 'Selected condition is moved up'});
+        this.setState({ changedFlag: true, moveRuleUpAlert: true, successMsg: 'Selected condition is moved up' });
     }
-    
+
     moveRuleDown = (e, index) => {
         e.preventDefault();
         // console.log(`In moveRuleDown, index =========> ${JSON.stringify(index)}`);
         this.props.moveDown(index);
-        this.setState({ changedFlag: true, moveRuleDownAlert: true, successMsg: 'Selected condition is moved down'});
+        this.setState({ changedFlag: true, moveRuleDownAlert: true, successMsg: 'Selected condition is moved down' });
     }
 
     toggleActive = (e, rule) => {
         e.preventDefault();
         // console.log(`In toggleActive, rule =========> ${JSON.stringify(rule)}`);
 
-        rule.enabled = !rule.enabled;
+        const updatedRule = { ...rule, enabled: !rule.enabled };
+
         // console.log(`In toggleActive after change, rule =========> ${JSON.stringify(rule)}`);
-        
-        this.updateRule(rule);
-        this.setState({changedFlag: true});
+
+        this.updateRule(updatedRule);
+        this.setState(prevState => ({
+            sortedRules: {
+                ...prevState.sortedRules,
+                [updatedRule.key]: updatedRule
+            }
+        }));
+        this.setState({ changedFlag: true, });
     }
 
     removeCaseAlert = () => {
@@ -208,9 +216,9 @@ class DecisionDetails extends Component {
             onConfirm={this.removeCase}
             onCancel={this.cancelAlert}
             focusCancelBtn
-          >
+        >
             You will not be able to recover the changes!
-          </SweetAlert>)
+        </SweetAlert>)
     }
 
     removeDecisionAlert = () => {
@@ -223,9 +231,9 @@ class DecisionDetails extends Component {
             onConfirm={this.removeDecisions}
             onCancel={this.cancelAlert}
             focusCancelBtn
-          >
+        >
             You will not be able to recover the changes!
-          </SweetAlert>)
+        </SweetAlert>)
     }
 
     successAlert = () => {
@@ -233,30 +241,30 @@ class DecisionDetails extends Component {
             success
             title={this.state.successMsg}
             onConfirm={this.cancelAlert}
-          >
-          </SweetAlert>);
+        >
+        </SweetAlert>);
     }
 
     alert = () => {
         return (<div>
-             {this.state.removeAlert && this.removeCaseAlert()}
-             {this.state.removeDecisionAlert && this.removeDecisionAlert()}
-             {this.state.successAlert && this.successAlert()}
-         </div>);
+            {this.state.removeAlert && this.removeCaseAlert()}
+            {this.state.removeDecisionAlert && this.removeDecisionAlert()}
+            {this.state.successAlert && this.successAlert()}
+        </div>);
     }
 
     renderConditions = (conditions, index) => {
-        // console.log(`index =========> ${JSON.stringify(index)}`);
-        // console.log(`conditions =========> ${JSON.stringify(conditions)}`);
+        console.log(`index =========> ${JSON.stringify(index)}`);
+        console.log(`conditions =========> ${JSON.stringify(conditions)}`);
         const transformedData = transformRuleToTree(conditions);
-        // console.log(`transformedData =========> ${JSON.stringify(transformedData)}`);
+        console.log(`transformedData =========> ${JSON.stringify(transformedData)}`);
         return (
             <div className="rule-flex-container">
                 <div className="decision-box" key={`case - ${index}`}>
-                    {/* <div className="tool-flex">
+                    <div className="tool-flex">
                         <div><a href="" onClick={(e) => this.editCondition(e, index)}><FontAwesomeIcon icon={faPenToSquare} /></a></div>
-                        <div><a href="" onClick={((e) => this.handleRemoveCondition(e, index))}><FontAwesomeIcon icon={faTrash} /></a></div>
-                    </div> */}
+                        {/* <div><a href="" onClick={((e) => this.handleRemoveCondition(e, index))}><FontAwesomeIcon icon={faTrash} /></a></div> */}
+                    </div>
                     <Tree treeData={transformedData.node} count={transformedData.depthCount} />
                     {transformedData.event.params && <div className="view-params-container">
                         <h4>Params  </h4>
@@ -266,7 +274,7 @@ class DecisionDetails extends Component {
                         <h4>Actions</h4>
                         {transformedData.event.map((event, i) => (
                             <div key={i}>
-                                {Object.keys(event.params).length > 0 
+                                {Object.keys(event.params).length > 0
                                     ? <p>{event.type} - {JSON.stringify(event.params)}</p>
                                     : <p>{event.type}</p>
                                 }
@@ -279,39 +287,41 @@ class DecisionDetails extends Component {
 
     render() {
         const { outcomes } = this.props;
-        const { showCase} = this.state;
-        const {sortedRules} = this.state;
+        const { showCase } = this.state;
+        const { sortedRules } = this.state;
         // const displayRuleName = showFullRuleName ? ruleName : `${ruleName.substring(0, 20)}...`;
-        
+
         // console.log(`sortedRules =========> ${JSON.stringify(sortedRules)}`);
         const conditions = Object.keys(sortedRules).map((key) =>
         (<div key={key}>
             <PanelBox className={'boolean'}>
                 <div className="enable">
                     {/* TODO: The enable/disable status are not updated timely*/}
-                    <input type="checkbox" checked={sortedRules[key].enabled} onChange={((e) => this.toggleActive(e, sortedRules[key]))}/>
+                    <input type="checkbox" checked={sortedRules[key].enabled} onChange={((e) => this.toggleActive(e, sortedRules[key]))} title="Toggle Rule ON/OFF" />
                     <label style={{ fontSize: '0.8em' }}>{sortedRules[key].enabled ? 'Enabled' : 'Disabled'}</label>
                 </div>
-                <div className="index">{Number(key) + 1}</div>
-                <div className="name">{String(`${sortedRules[key].ruleName.substring(0, 50)}`)}</div>
+                <div className="index" title="Index/priority">{Number(key) + 1}</div>
+                <div className="name" title="Name">{String(`${sortedRules[key].ruleName.substring(0, 50)}`)}</div>
                 {/* <div className="type">conditions <span className="type-badge">{Object.keys(sortedRules[key].conditions).length}</span></div> */}
                 <div className="move">
-                    <a href="" onClick={((e) => this.moveRuleUp(e, sortedRules[key].ruleIndex))}><FontAwesomeIcon icon={faArrowCircleUp} /></a>
-                    <a href="" onClick={((e) => this.moveRuleDown(e, sortedRules[key].ruleIndex))}><FontAwesomeIcon icon={faArrowCircleDown} /></a>
+                    <a href="" onClick={((e) => this.moveRuleUp(e, sortedRules[key].ruleIndex))}><FontAwesomeIcon icon={faArrowCircleUp} title="Rise the priority" /></a>
+                    <a href="" onClick={((e) => this.moveRuleDown(e, sortedRules[key].ruleIndex))}><FontAwesomeIcon icon={faArrowCircleDown} title="Lower the priority" /></a>
                 </div>
                 <div className="menu">
-                    <a href="" onClick={(e) => this.handleExpand(e, key)}> {showCase[key].case ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}</a>
-                    <a href="" onClick={((e) => this.handleRemoveCondition(e, String(key)))}><FontAwesomeIcon icon={faCircleMinus} /></a>
+                    <a href="" onClick={(e) => this.handleExpand(e, key)}> {showCase[key].case ? <FontAwesomeIcon icon={faEyeSlash} title="Collapse details" /> : <FontAwesomeIcon icon={faEye} title="Show details" />}</a>
+                    <a href="" onClick={((e) => this.handleRemoveCondition(e, String(key)))}>
+                        <FontAwesomeIcon icon={faCircleMinus} title="DELETE the rule" color="#D34836" />
+                    </a>
                 </div>
             </PanelBox>
 
-            { showCase[key].case && this.renderConditions(sortedRules[key], key)}
+            {showCase[key].case && this.renderConditions(sortedRules[key], key)}
         </div>));
 
-    return (<div className="">
-        { this.alert() }
-        { conditions }
-    </div>);
+        return (<div className="">
+            {this.alert()}
+            {conditions}
+        </div>);
     }
 }
 
@@ -324,7 +334,9 @@ DecisionDetails.defaultProps = ({
     moveDown: () => false,
     updateRule: () => false,
     getKlnames: () => false,
-    outcomes: {},
+    outcomes: [],
+    // ruleDetailUpdatedFlag: false,
+    // setRuleDetailUpdatedFlag: () => false,
 });
 
 DecisionDetails.propTypes = ({
@@ -332,11 +344,13 @@ DecisionDetails.propTypes = ({
     editCondition: PropTypes.func,
     removeCase: PropTypes.func,
     removeDecisions: PropTypes.func,
+    ruleDetailUpdatedFlag: PropTypes.bool,
     moveUp: PropTypes.func,
     moveDown: PropTypes.func,
     updateRule: PropTypes.func,
     getKlnames: PropTypes.func,
-    outcomes: PropTypes.object,
+    outcomes: PropTypes.array,
+    setRuleDetailUpdatedFlag: PropTypes.func,
 });
 
 export default DecisionDetails;

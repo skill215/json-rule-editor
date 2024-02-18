@@ -24,7 +24,7 @@ import { faCircleExclamation, faCircleCheck } from '@fortawesome/free-solid-svg-
 // const tabs = [{ name: 'Facts' }, { name: 'Decisions' }, { name: 'Validate' }, { name: 'Generate' }, { name: 'Apply' }];
 const tabs = [{ name: 'Rules' }, { name: 'Keyword Lists' }, { name: 'Validate' }, { name: 'Local Ops' }, { name: 'Server Ops' }];
 
-const backendIp = "43.192.13.108"
+const backendIp = "161.189.188.48"
 class RulesetContainer extends Component {
 
   constructor(props) {
@@ -462,7 +462,7 @@ class RulesetContainer extends Component {
     const { keywords: klists } = this.props.ruleset;
 
     if (!klists) {
-      console.error('klists is undefined');
+      console.log('klists is undefined');
       return [];
     }
 
@@ -533,8 +533,8 @@ class RulesetContainer extends Component {
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ backgroundColor: '#f2f2f2' }}>
-                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Node</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Result</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }} align='center'>Node</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }} align='center'>Result</th>
                         <th style={{ border: '1px solid #ddd', padding: '8px' }}>Info</th>
                       </tr>
                     </thead>
