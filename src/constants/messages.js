@@ -17,16 +17,16 @@ export const MODIFIED_MSG = {header: MODIFIED_HEADER, body: MODIFIED_BODY, type:
 const BUTTON_PROPS_UPLOAD = {label: 'Upload Ruleset'};
 const UPLOAD_HEADER = 'Upload Ruleset';
 const UPLOAD_BODY = 'Upload this ruleset to rule server. Ruleset with same name will be OVERWRITTEN.'
-export const UPLOAD_MSG = {header: UPLOAD_HEADER, body: UPLOAD_BODY, type: 'warning-panel', buttonProps: BUTTON_PROPS_UPLOAD,};
+export const UPLOAD_MSG = {header: UPLOAD_HEADER, body: UPLOAD_BODY, type: 'submit-panel', buttonProps: BUTTON_PROPS_UPLOAD,};
 
 const BUTTON_PROPS_DEPLOY = {label: 'Deploy Ruleset'};
 const DEPLOY_HEADER = 'Deploy Ruleset';
 const DEPLOY_BODY = 'Upload and Activate this ruleset to production server(s).'
-export const DEPLOY_MSG = {header: DEPLOY_HEADER, body: DEPLOY_BODY, type: 'warning-panel', buttonProps: BUTTON_PROPS_DEPLOY,};
+export const DEPLOY_MSG = {header: DEPLOY_HEADER, body: DEPLOY_BODY, type: 'submit-panel', buttonProps: BUTTON_PROPS_DEPLOY,};
 
 const DELETE_HEADER = 'Delete Ruleset';
 const DELETE_BODY = 'Delete this ruleset in local browser.'
-export const DELETE_MSG = {header: DELETE_HEADER, body: DELETE_BODY, type: 'warning-panel', buttonProps: BUTTON_PROPS_NO_CHANGES,};
+export const DELETE_MSG = {header: DELETE_HEADER, body: DELETE_BODY, type: 'submit-panel', buttonProps: BUTTON_PROPS_NO_CHANGES,};
 
 const BUTTON_PROPS_DELETE_SERVER = {label: 'Delete Ruleset on Server'};
 const DELETE_SERVER_HEADER = 'Delete Ruleset on Server';

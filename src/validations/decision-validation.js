@@ -30,7 +30,7 @@ const fieldValidationByType = (value, type, operator) => {
                 return re.test(value)
             } else {
                 // Validate if the attribute value is a valid string with digits and alphabetic chars.
-                let re = /^(\+)?[A-Za-z0-9 _-]+$/;
+                let re = /^(\+)?[A-Za-z0-9; _-]+$/;
 
                 let matched = re.test(value);
                 console.log(`matched: ${matched}`);

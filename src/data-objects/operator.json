@@ -3,19 +3,24 @@
         "equal",
         "notEqual",
         "contains",
+        "notContain",
         "in",
         "notIn",
         "longerThan",
         "shorterThan",
         "hasPrefix",
+        "noPrefix",
         "hasSuffix",
-        "match"
+        "noSuffix",
+        "match",
+        "notMatch"
     ],
     "abstract": [
         "isMO",
         "isMT",
         "isAO",
         "isAT",
-        "isConcatenated"
+        "isConcatenated",
+        "isHomerouting"
     ]
 }
