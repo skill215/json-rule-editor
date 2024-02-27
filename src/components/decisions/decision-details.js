@@ -19,10 +19,10 @@ class DecisionDetails extends Component {
                 return ({ case: false, edit: false, index });
             });
             // console.log(`Rules changed, showCase =========> ${JSON.stringify(showCase)}`);
-            console.log(`Rules changed, sRUles =========> ${JSON.stringify(sRules)}`);
-            console.log(`Rules changed, sortedRule =========> ${JSON.stringify(state.sortedRules)}`);
-            console.log(`Rule details updated, props.ruleDetailUpdatedFlag =========> ${JSON.stringify(props.ruleDetailUpdatedFlag)}`);
-            console.log(`Rules changed, state.changedFlag =========> ${JSON.stringify(state.changedFlag)}`);
+            // console.log(`Rules changed, sRUles =========> ${JSON.stringify(sRules)}`);
+            // console.log(`Rules changed, sortedRule =========> ${JSON.stringify(state.sortedRules)}`);
+            // console.log(`Rule details updated, props.ruleDetailUpdatedFlag =========> ${JSON.stringify(props.ruleDetailUpdatedFlag)}`);
+            // console.log(`Rules changed, state.changedFlag =========> ${JSON.stringify(state.changedFlag)}`);
             props.setRuleDetailUpdatedFlag(false);
             return { showCase, sortedRules: Object.values(sRules), changedFlag: false };
         }

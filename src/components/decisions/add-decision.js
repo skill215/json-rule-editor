@@ -80,7 +80,10 @@ class AddDecision extends Component {
             addPathflag: false,
             activeNodeDepth: [activeNode],
             isOperatorInList: false,
+            isListActive: false,
             isCharacteristics: false,
+            inputValue: '',
+            isInputValue: true,
 
             //Upload file related states
             uploadedFilesCount: 0,
@@ -124,7 +127,7 @@ class AddDecision extends Component {
         if (formError) {
             const updatedOutcomes = this.state.outcome.map((outcome, index) => ({ ...outcome, error: errors[index].outcome }));
             this.setState({ formError, outcome: updatedOutcomes });
-        } else { 
+        } else {
             const conditions = this.state.outcome.map((outcome, index) => {
                 let outcomeParams = {};
                 Object.entries(outcome.params).forEach(([key, value]) => {
@@ -205,11 +208,14 @@ class AddDecision extends Component {
         const addAttribute = { ...this.state.addAttribute };
         addAttribute[name] = e.target.value;
 
-        // If the operator is 'in' or 'notIn', set a flag in the state
-        if (name === 'operator' && (e.target.value === 'in' || e.target.value === 'notIn')) {
-            this.setState({ isOperatorInList: true });
-        } else {
+        // Define the operators to exclude
+        const excludeOperators = ['longerThan', 'shorterThan', 'match'];
+
+        // If the operator is not in the excludeOperators list, set a flag in the state
+        if (name === 'operator' && excludeOperators.includes(e.target.value)) {
             this.setState({ isOperatorInList: false });
+        } else {
+            this.setState({ isOperatorInList: true });
         }
 
         this.setState({ addAttribute });
@@ -269,7 +275,7 @@ class AddDecision extends Component {
         } else if (type === 'pvalue') {
             params[keys[index]] = e.target.value;
         }
-    
+
         outcomes[outcomeIndex].params = params;
         this.setState({ outcome: outcomes });
     }
@@ -539,13 +545,29 @@ class AddDecision extends Component {
                 </div>
                 {this.state.isOperatorInList ? (
                     <div>
+                        <InputField
+                            onChange={(value) => {
+                                this.onChangeInput(value, 'value');
+                                this.setState({ isInputValue: true });
+                            }}
+                            value={addAttribute.value ? '' : this.state.inputValue}
+                            error={addAttribute.error.value}
+                            label="Input Value"
+                            placeholder={placeholder}
+                            disabled={!this.state.isInputValue}
+                        />
                         <SelectField
                             options={klNames}
-                            onChange={(e) => this.onChangeInputSelector(e, 'value')}
-                            value={addAttribute.value}
+                            onChange={(e) => {
+                                this.onChangeInputSelector(e, 'value');
+                                this.setState({ isInputValue: false });
+                            }}
+                            value={this.state.inputValue ? '' : addAttribute.value}
                             error={addAttribute.error.value}
-                            label="Value"
+                            label="Or Select a List"
+                            disabled={this.state.isInputValue}
                         />
+
                     </div>
                 ) : this.state.isCharacteristics ? (
                     <div>

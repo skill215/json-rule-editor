@@ -62,7 +62,9 @@ module.exports = (env, arg) => ({
       "crypto": false
      }
   },
-    
+  // devServer: {
+  //   port: 8050 // http service port
+  // },  
   plugins: [
     new HtmlWebPackPlugin({
       template: 'index.html',

@@ -75,6 +75,7 @@ class RulesetContainer extends Component {
     this.preSendDeployRuleset = this.preSendDeployRuleset.bind(this);
     this.sendDeployRuleset = this.sendDeployRuleset.bind(this);
     this.updateVState = this.updateVState.bind(this);
+    this.clearUpdatedFlag = this.clearUpdatedFlag.bind(this);
   }
 
   handleTab = (tabName) => {
@@ -123,7 +124,7 @@ class RulesetContainer extends Component {
 
     // console.log(`The JSON body is: ${fileData}`);
 
-    fetch('http://'+backendIp+':3001/receive-ruleset', {
+    fetch('http://' + backendIp + ':3001/receive-ruleset', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -140,6 +141,8 @@ class RulesetContainer extends Component {
       })
       .then(data => {
         console.log('Success:', data);
+        this.clearUpdatedFlag();
+
         this.setState({ sendToServerFlag: true });
       })
       .catch((error) => {
@@ -175,7 +178,7 @@ class RulesetContainer extends Component {
     console.log(`this.props == ${JSON.stringify(this.props)}`);
     const rulesetName = ruleset.name;
 
-    fetch('http://'+backendIp+':3001/delete-ruleset', {
+    fetch('http://' + backendIp + ':3001/delete-ruleset', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -209,7 +212,7 @@ class RulesetContainer extends Component {
 
     const combinedData = JSON.stringify({ facts: facts, ruleset: ruleset });
 
-    return fetch('http://'+backendIp+':3001/receive-validate', {
+    return fetch('http://' + backendIp + ':3001/receive-validate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -310,7 +313,7 @@ class RulesetContainer extends Component {
 
     this.setState({ isLoading: true });
 
-    return fetch('http://'+backendIp+':3001/receive-deploy-ruleset', {
+    return fetch('http://' + backendIp + ':3001/receive-deploy-ruleset', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -477,6 +480,12 @@ class RulesetContainer extends Component {
     this.setState({ vState: vState });
   }
 
+  clearUpdatedFlag = () => {
+    console.log('Clearing updated flag');
+    this.props.handleDecisions('CLEARUPDATEDFLAG', null);
+  }
+
+
   render() {
     const { attributes, decisions, name, keywords: klists, defaultAction, feature } = this.props.ruleset;
     const { vState } = this.state;
@@ -552,7 +561,7 @@ class RulesetContainer extends Component {
                         </tr>
                       ))}
                     </tbody>
-                  </table>                )}
+                  </table>)}
               </Panel>
             </>
           )}
@@ -576,7 +585,7 @@ RulesetContainer.propTypes = {
   ruleset: PropTypes.object,
   handleKlist: PropTypes.func,
   handleDecisions: PropTypes.func,
-  updatedFlag: PropTypes.bool,
+  updatedFlag: PropTypes.array,
   runRules: PropTypes.func,
 }
 
@@ -584,9 +593,8 @@ RulesetContainer.defaultProps = {
   ruleset: {},
   handleKlist: () => false,
   handleDecisions: () => false,
-  updatedFlag: false,
+  updatedFlag: [],
 }
-
 const mapStateToProps = (state) => ({
   ruleset: state.ruleset.rulesets[state.ruleset.activeRuleset],
   updatedFlag: state.ruleset.updatedFlag,

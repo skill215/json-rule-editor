@@ -65,7 +65,7 @@ class Klist extends Component {
 
         const buttonProps = { primaryLabel: 'Add Keyword List', secondaryLabel: 'Cancel'};
         
-        console.log(`this.props.klists in Klist class ===> ${JSON.stringify(this.props.klists)}`);
+        // console.log(`this.props.klists in Klist class ===> ${JSON.stringify(this.props.klists)}`);
         return (<div className="klists-container">
             
             { <ToolBar handleAdd={this.handleAdd} reset={this.handleReset} /> }

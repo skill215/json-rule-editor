@@ -18,7 +18,7 @@ class NavigationPanel extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {links: []};
+        this.state = { links: [] };
         this.handleNavLink = this.handleNavLink.bind(this);
         this.handleNavBtn = this.handleNavBtn.bind(this);
     }
@@ -36,9 +36,18 @@ class NavigationPanel extends Component {
     }
 
     render() {
-        const { closedState, loggedIn } = this.props;
-        let rulesetLink = this.props.rulenames.length > 0 ?
-         [{ name: 'Ruleset', sublinks: this.props.rulenames, iconClass:"rules-icon", linkClass: 'link-heading', title: ""}] : [];
+        console.log(`in NavigationPanel, this.props: ${JSON.stringify(this.props)}`);
+        const { closedState, loggedIn, ruleDetails } = this.props;
+        let rulesetLink = ruleDetails.length > 0 ?
+            [{
+                name: 'Ruleset',
+                sublinks: ruleDetails.map(detail => ({ name: detail.rulename, updated: detail.updatedFlag })),
+                iconClass: "rules-icon",
+                linkClass: 'link-heading',
+                title: ""
+            }] : [];
+
+        console.log(`rulesetLink: ${JSON.stringify(rulesetLink)}`);
 
         rulesetLink = rulesetLink.concat(navmenu);
 
@@ -47,20 +56,20 @@ class NavigationPanel extends Component {
         let appctx = this.context;
 
         return (
-            <div className={`nav-container ${closedState ? 'closed': 'open'} ${appctx.background}`}>
+            <div className={`nav-container ${closedState ? 'closed' : 'open'} ${appctx.background}`}>
                 <div className="menu-bar">
-                       <a href="" onClick={(e) => { e.preventDefault();  this.props.updateState(sideNav)}}> 
+                    <a href="" onClick={(e) => { e.preventDefault(); this.props.updateState(sideNav) }}>
                         <FontAwesomeIcon className="close-icon" icon={faBars}></FontAwesomeIcon>
-                        </a>
+                    </a>
                 </div>
                 {!closedState && <div className="links-section">
                     <div>
-                        <NavLinks links={rulesetLink} onConfirm={this.handleNavLink} activeIndex={this.props.activeIndex}/>
+                        <NavLinks links={rulesetLink} onConfirm={this.handleNavLink} activeIndex={this.props.activeIndex} />
                     </div>
                     <div className="footer-container sidenav">
                         <FooterLinks links={footerLinks} />
                     </div>
-                 </div>
+                </div>
                 }
             </div>
         )
@@ -71,7 +80,7 @@ NavigationPanel.contextType = AppearanceContext;
 
 NavigationPanel.defaultProps = {
     closedState: false,
-    rulenames: [],
+    ruleDetails: [],
     setActiveRulesetIndex: () => false,
     loggedIn: false,
     updateState: () => false,
@@ -80,7 +89,12 @@ NavigationPanel.defaultProps = {
 
 NavigationPanel.propTypes = {
     closedState: PropTypes.bool,
-    rulenames: PropTypes.array,
+    ruleDetails: PropTypes.arrayOf(
+        PropTypes.shape({
+            rulename: PropTypes.string,
+            updatedFlag: PropTypes.bool
+        })
+    ),
     setActiveRulesetIndex: PropTypes.func,
     loggedIn: PropTypes.bool,
     updateState: PropTypes.func,

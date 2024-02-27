@@ -2,18 +2,15 @@
     "string": [
         "equal",
         "notEqual",
-        "contains",
+        "contain",
         "notContain",
-        "in",
-        "notIn",
         "longerThan",
         "shorterThan",
         "hasPrefix",
         "noPrefix",
         "hasSuffix",
         "noSuffix",
-        "match",
-        "notMatch"
+        "match"
     ],
     "abstract": [
         "isMO",

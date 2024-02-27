@@ -7,10 +7,9 @@ import { name } from 'file-loader';
 const initialState = {
     rulesets: [],
     activeRuleset: 0,
-    updatedFlag: false,
+    updatedFlag: [],
     uploadedRules: [],
 }
-
 
 const replaceRulesetByIndex = (rulesets, targetset, index) => {
     return [...rulesets.slice(0, index), targetset, ...rulesets.slice(index + 1)];
@@ -124,10 +123,10 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.ADD_RULESET: {
 
             const { name } = action.payload;
-            const rulset = { name, attributes: attributesPredefined.attributes, decisions: [] };
-            console.log(`in ActionTypes.ADD_RULESET, rulset: ${JSON.stringify(rulset)} `);
+            const ruleset = { name, attributes: attributesPredefined.attributes, decisions: [] };
+            console.log(`in ActionTypes.ADD_RULESET, ruleset: ${JSON.stringify(ruleset)} `);
             const count = state.rulesets.length === 0 ? 0 : state.rulesets.length;
-            return { ...state, rulesets: state.rulesets.concat(rulset), activeRuleset: count }
+            return { ...state, rulesets: state.rulesets.concat(ruleset), activeRuleset: count }
         }
 
         case ActionTypes.UPDATE_RULESET_INDEX: {
@@ -138,28 +137,29 @@ function ruleset(state = initialState, action = '') {
         }
 
         case ActionTypes.ADD_DECISION: {
-
             const { condition, metadata } = action.payload;
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             const decision = { ...metadata, ...condition[0] };
-            console.log(`in ActionTypes.ADD_DECISION, decision: ${JSON.stringify(decision)} `);
             activeRuleSet.decisions = activeRuleSet.decisions.concat(decision);
-            console.log(`in ActionTypes.ADD_DECISION, activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
+
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
             }
         }
 
         case ActionTypes.UPDATE_DECISION: {
             const { condition, metadata, ruleIndex } = action.payload;
-            console.log(`in ActionTypes.UPDATE_DECISION, condition: ${JSON.stringify(condition)}, metadata: ${JSON.stringify(metadata)}, index: ${ruleIndex} `);
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
 
             activeRuleSet.decisions = activeRuleSet.decisions.map(d => {
                 if (d.ruleIndex == ruleIndex) {
-                    console.log(`in ActionTypes.UPDATE_DECISION, d.ruleIndex: ${d.ruleIndex}, ruleIndex: ${ruleIndex} `);
                     return {
                         ...d,
                         ruleName: metadata.ruleName,
@@ -172,10 +172,14 @@ function ruleset(state = initialState, action = '') {
                 return d;
             });
 
-            console.log(`in ActionTypes.UPDATE_DECISION, activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
             }
         }
@@ -187,10 +191,16 @@ function ruleset(state = initialState, action = '') {
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             console.log(`in ActionTypes.UPDATE_RULE, activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
             activeRuleSet.decisions = activeRuleSet.decisions.map(d => d.ruleIndex == ruleIndex ? rule : d);
+
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             console.log(`in ActionTypes.UPDATE_RULE, new activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
             }
         }
@@ -199,9 +209,15 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.REMOVE_DECISION: {
             const { decisionIndex } = action.payload;
             const newRulesets = removeDecisionByIndex(state.rulesets, state.activeRuleset, decisionIndex);
+
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: newRulesets
             }
         }
@@ -209,9 +225,15 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.REMOVE_DECISIONS: {
             const { outcome } = action.payload;
             const newRulesets = removeDecisionsByOutcome(state.rulesets, state.activeRuleset, outcome);
+
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: newRulesets
             }
         }
@@ -221,9 +243,14 @@ function ruleset(state = initialState, action = '') {
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             activeRuleSet.attributes.push(attribute);
 
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
             }
         }
@@ -233,22 +260,31 @@ function ruleset(state = initialState, action = '') {
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             activeRuleSet.attributes.splice(index, 1, attribute);
 
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
             }
         }
 
         case ActionTypes.REMOVE_ATTRIBUTE: {
-
             const { index } = action.payload;
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             activeRuleSet.attributes.splice(index, 1);
 
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
             }
         }
@@ -284,9 +320,15 @@ function ruleset(state = initialState, action = '') {
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             console.log(`in MOVE_RULE_UP, action.payload: ${JSON.stringify(action.payload)} `);
             const rulesets = moveRuleUpByIndex(activeRuleSet, ruleIndex);
+
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: replaceRulesetByIndex(state.rulesets, rulesets, state.activeRuleset)
             }
         }
@@ -296,13 +338,18 @@ function ruleset(state = initialState, action = '') {
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
             console.log(`in MOVE_RULE_DOWN, action.payload: ${JSON.stringify(action.payload)} `);
             const rulesets = moveRuleDownByIndex(activeRuleSet, ruleIndex);
+
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
             return {
                 ...state,
-                updatedFlag: true,
+                updatedFlag, // Use the updated array
                 rulesets: replaceRulesetByIndex(state.rulesets, rulesets, state.activeRuleset)
             }
         }
-
         case ActionTypes.UPLOAD_LIST: {
             const kList = action.payload;
             console.log(`Action payload: kList = ${JSON.stringify(kList)}`);
@@ -376,7 +423,12 @@ function ruleset(state = initialState, action = '') {
             const rulesets = [...state.rulesets];
             rulesets[state.activeRuleset] = activeRuleSet;
 
-            return { ...state, rulesets: rulesets, uploadedRules: cloneDeep(rulesets) }
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
+            return { ...state, rulesets: rulesets, uploadedRules: cloneDeep(rulesets), updatedFlag }
         }
 
         case ActionTypes.UPDATE_FEATURE: {
@@ -394,7 +446,20 @@ function ruleset(state = initialState, action = '') {
             const rulesets = [...state.rulesets];
             rulesets[state.activeRuleset] = activeRuleSet;
 
-            return { ...state, rulesets: rulesets, uploadedRules: cloneDeep(rulesets) }
+            // Create a copy of the updatedFlag array
+            const updatedFlag = [...state.updatedFlag];
+            // Set the value at state.activeRuleset to true
+            updatedFlag[state.activeRuleset] = true;
+
+            return { ...state, rulesets: rulesets, uploadedRules: cloneDeep(rulesets), updatedFlag }
+        }
+
+        case ActionTypes.CLEAR_UPDATED_FLAG: {
+            const updatedFlag = [...state.updatedFlag];
+            console.log(`in CLEAR_UPDATED_FLAG, updatedFlag: ${JSON.stringify(updatedFlag)} `);
+            updatedFlag[state.activeRuleset] = false;
+            console.log(`in CLEAR_UPDATED_FLAG, updatedFlag: ${JSON.stringify(updatedFlag)} `);
+            return { ...state, updatedFlag }
         }
 
         default:

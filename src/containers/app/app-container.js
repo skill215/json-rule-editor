@@ -36,22 +36,22 @@ class ApplicationContainer extends Component {
     }
 
     render() {
-        const closednav = this.props.navState !== 'open';
-        return(
-            <React.Fragment>
-              <ApperanceContext.Provider value={this.state.theme}>
-                <Title title={'SMS-FW Rule Editor'} />
-                <NavigationPanel closedState={closednav} updateState={this.props.updateState} activeIndex={this.props.activeIndex}
-                        rulenames={this.props.rulenames} setActiveRulesetIndex={this.props.setActiveRulesetIndex} loggedIn={this.props.loggedIn}/>
-                <AppRoutes closedState={closednav} loggedIn={this.props.loggedIn} appctx={this.state.theme} />
-              </ApperanceContext.Provider>
-            </React.Fragment>
-        )
+            const closednav = this.props.navState !== 'open';
+            return(
+                    <React.Fragment>
+                        <ApperanceContext.Provider value={this.state.theme}>
+                            <Title title={'SMS-FW Rule Editor'} />
+                            <NavigationPanel closedState={closednav} updateState={this.props.updateState} activeIndex={this.props.activeIndex}
+                                            ruleDetails={this.props.ruleDetails} setActiveRulesetIndex={this.props.setActiveRulesetIndex} loggedIn={this.props.loggedIn}/>
+                            <AppRoutes closedState={closednav} loggedIn={this.props.loggedIn} appctx={this.state.theme} />
+                        </ApperanceContext.Provider>
+                    </React.Fragment>
+            )
     }
 }
 
 ApplicationContainer.defaultProps = {
-    rulenames: [],
+    ruleDetails: [],
     setActiveRulesetIndex: () => false,
     navState: undefined,
     activeIndex: 0,
@@ -60,7 +60,12 @@ ApplicationContainer.defaultProps = {
 };
 
 ApplicationContainer.propTypes = {
-    rulenames: PropTypes.array,
+    ruleDetails: PropTypes.arrayOf(
+        PropTypes.shape({
+            rulename: PropTypes.string,
+            updatedFlag: PropTypes.bool
+        })
+    ),
     setActiveRulesetIndex: PropTypes.func,
     navState: PropTypes.string,
     loggedIn: PropTypes.bool,
@@ -71,7 +76,7 @@ ApplicationContainer.propTypes = {
 
 const mapStateToProps = (state, ownProps) => ({
     navState: state.app.navState,
-    rulenames: state.ruleset.rulesets.map(r => r.name),
+    ruleDetails: state.ruleset.rulesets.map((r, index) => ({ rulename: r.name, updatedFlag: state.ruleset.updatedFlag[index] })),
     loggedIn: state.app.loggedIn,
     activeIndex: state.ruleset.activeRuleset,
     ownProps
