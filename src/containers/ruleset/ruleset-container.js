@@ -31,7 +31,7 @@ class RulesetContainer extends Component {
     super(props);
 
     const { attributes } = this.props.ruleset;
-    console.log(`attributes in RulesetContainer: ${JSON.stringify(attributes)}`)
+    // console.log(`attributes in RulesetContainer: ${JSON.stringify(attributes)}`)
     const conditions = attributes.filter(attr => attr.type !== 'object' && ({ name: attr.name, value: '' }))
 
     this.state = {
@@ -62,7 +62,7 @@ class RulesetContainer extends Component {
       message: ''
     };
 
-    console.log(`this.state.vState in RulesetContainer: ${JSON.stringify(this.state.vState)}`);
+    // console.log(`this.state.vState in RulesetContainer: ${JSON.stringify(this.state.vState)}`);
 
     this.generateFile = this.generateFile.bind(this);
     this.cancelAlert = this.cancelAlert.bind(this);
@@ -489,10 +489,10 @@ class RulesetContainer extends Component {
   render() {
     const { attributes, decisions, name, keywords: klists, defaultAction, feature } = this.props.ruleset;
     const { vState } = this.state;
-    console.log(`deployResponses ==> ${JSON.stringify(this.state.deployResponses)}`);
-    if (this.state.deployResponses && this.state.deployResponses.length > 0) {
-      console.log(`Should display the table`);
-    }
+    // console.log(`deployResponses ==> ${JSON.stringify(this.state.deployResponses)}`);
+    // if (this.state.deployResponses && this.state.deployResponses.length > 0) {
+    //   console.log(`Should display the table`);
+    // }
     const indexedDecisions = decisions && decisions.length > 0 &&
       decisions.map((decision, index) => ({ ...decision, index }));
 
@@ -509,8 +509,8 @@ class RulesetContainer extends Component {
     const delete_message = Message.DELETE_MSG;
     const delete_server_message = Message.DELETE_SERVER_MSG;
 
-    console.log(`defaultAction in RulesetContainer: ${defaultAction}`)
-    console.log(`feature in RulesetContainer: ${feature}`)
+    // console.log(`defaultAction in RulesetContainer: ${defaultAction}`)
+    // console.log(`feature in RulesetContainer: ${feature}`)
 
     return <div>
       <RuleErrorBoundary>

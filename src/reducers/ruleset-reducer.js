@@ -22,11 +22,11 @@ const moveRuleUpByIndex = (activeRuleSet, ruleIndex) => {
     const indexToMove = decisions.findIndex(decision => decision.ruleIndex === ruleIndex);
 
     if (indexToMove <= 0) {
-        console.log(`in moveRuleUpByIndex, the ruleset is not changed because indexToMove: ${indexToMove} is out of bounds`);
+        // console.log(`in moveRuleUpByIndex, the ruleset is not changed because indexToMove: ${indexToMove} is out of bounds`);
         return activeRuleSet;
     }
 
-    console.log(`in moveRuleUpByIndex, decisions before change: ${JSON.stringify(decisions)} `);
+    // console.log(`in moveRuleUpByIndex, decisions before change: ${JSON.stringify(decisions)} `);
 
     // Swap ruleIndex of the current decision and the next decision
     const temp = decisions[indexToMove].ruleIndex;
@@ -35,7 +35,7 @@ const moveRuleUpByIndex = (activeRuleSet, ruleIndex) => {
 
     activeRuleSet.decisions.sort((a, b) => a.ruleIndex - b.ruleIndex);
 
-    console.log(`in moveRuleUpByIndex, decisions: ${JSON.stringify(decisions)} `);
+    // console.log(`in moveRuleUpByIndex, decisions: ${JSON.stringify(decisions)} `);
 
     return activeRuleSet;
 }
@@ -47,11 +47,11 @@ const moveRuleDownByIndex = (activeRuleSet, ruleIndex) => {
     const indexToMove = decisions.findIndex(decision => decision.ruleIndex === ruleIndex);
 
     if (indexToMove >= decisions.length - 1) {
-        console.log(`in moveRuleDownByIndex, the ruleset is not changed because indexToMove: ${indexToMove} is out of bounds`);
+        // console.log(`in moveRuleDownByIndex, the ruleset is not changed because indexToMove: ${indexToMove} is out of bounds`);
         return activeRuleSet;
     }
 
-    console.log(`in moveRuleDownByIndex, decisions before change: ${JSON.stringify(decisions)} `);
+    // console.log(`in moveRuleDownByIndex, decisions before change: ${JSON.stringify(decisions)} `);
 
     // Swap ruleIndex of the current decision and the next decision
     const temp = decisions[indexToMove].ruleIndex;
@@ -60,7 +60,7 @@ const moveRuleDownByIndex = (activeRuleSet, ruleIndex) => {
 
     activeRuleSet.decisions.sort((a, b) => a.ruleIndex - b.ruleIndex);
 
-    console.log(`in moveRuleDownByIndex, decisions: ${JSON.stringify(decisions)} `);
+    // console.log(`in moveRuleDownByIndex, decisions: ${JSON.stringify(decisions)} `);
 
     return activeRuleSet;
 }
@@ -77,15 +77,15 @@ const refreshIndex = (rulesets, activeRulesetIndex) => {
 
 
 const removeDecisionByIndex = (rulesets, activeRulesetIndex, decisionIndex) => {
-    console.log(`in removeDecisionByIndex, decisionIndex: ${decisionIndex} `);
-    console.log(`in removeDecisionByIndex, rulesets[${activeRulesetIndex}].decisions.decision.ruleIndex:  ${rulesets[activeRulesetIndex].decisions[0].ruleIndex}`);
+    // console.log(`in removeDecisionByIndex, decisionIndex: ${decisionIndex} `);
+    // console.log(`in removeDecisionByIndex, rulesets[${activeRulesetIndex}].decisions.decision.ruleIndex:  ${rulesets[activeRulesetIndex].decisions[0].ruleIndex}`);
 
     // Filter out the decision with the specified ruleIndex
     rulesets[activeRulesetIndex].decisions = rulesets[activeRulesetIndex].decisions.filter(decision => Number(decision.ruleIndex) != decisionIndex);
 
     // Call refreshIndex to update ruleIndex of remaining decisions
     refreshIndex(rulesets, activeRulesetIndex);
-    console.log(`in removeDecisionByIndex, rulesets: ${JSON.stringify(rulesets)} `);
+    // console.log(`in removeDecisionByIndex, rulesets: ${JSON.stringify(rulesets)} `);
     return rulesets;
 }
 
@@ -106,13 +106,13 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.UPLOAD_RULESET: {
 
             const { ruleset } = action.payload;
-            console.log(`in ActionTypes.UPLOAD_RULESET, ruleset: ${JSON.stringify(ruleset)} `);
+            // console.log(`in ActionTypes.UPLOAD_RULESET, ruleset: ${JSON.stringify(ruleset)} `);
             // Check if there is already a ruleset with the same name
             const existingRuleset = state.rulesets.find(r => r.name === ruleset.name);
 
             if (existingRuleset) {
                 // If there is already a ruleset with the same name, replace it with the new ruleset
-                console.log(`in ActionTypes.UPLOAD_RULESET, there is duplicated ruleset: ${existingRuleset.name} `);
+                // console.log(`in ActionTypes.UPLOAD_RULESET, there is duplicated ruleset: ${existingRuleset.name} `);
                 return {...state};
             } else {
                 const rulesets = state.rulesets.concat(ruleset);
@@ -124,7 +124,7 @@ function ruleset(state = initialState, action = '') {
 
             const { name } = action.payload;
             const ruleset = { name, attributes: attributesPredefined.attributes, decisions: [] };
-            console.log(`in ActionTypes.ADD_RULESET, ruleset: ${JSON.stringify(ruleset)} `);
+            // console.log(`in ActionTypes.ADD_RULESET, ruleset: ${JSON.stringify(ruleset)} `);
             const count = state.rulesets.length === 0 ? 0 : state.rulesets.length;
             return { ...state, rulesets: state.rulesets.concat(ruleset), activeRuleset: count }
         }
@@ -187,9 +187,9 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.UPDATE_RULE: {
             const rule = action.payload.rule;
             const { ruleIndex } = rule;
-            console.log(`in ActionTypes.UPDATE_RULE, rule: ${JSON.stringify(rule)}, ruleIndex: ${ruleIndex} `);
+            // console.log(`in ActionTypes.UPDATE_RULE, rule: ${JSON.stringify(rule)}, ruleIndex: ${ruleIndex} `);
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
-            console.log(`in ActionTypes.UPDATE_RULE, activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
+            // console.log(`in ActionTypes.UPDATE_RULE, activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
             activeRuleSet.decisions = activeRuleSet.decisions.map(d => d.ruleIndex == ruleIndex ? rule : d);
 
             // Create a copy of the updatedFlag array
@@ -197,7 +197,7 @@ function ruleset(state = initialState, action = '') {
             // Set the value at state.activeRuleset to true
             updatedFlag[state.activeRuleset] = true;
 
-            console.log(`in ActionTypes.UPDATE_RULE, new activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
+            // console.log(`in ActionTypes.UPDATE_RULE, new activeRuleSet.decisions: ${JSON.stringify(activeRuleSet.decisions)} `);
             return {
                 ...state,
                 updatedFlag, // Use the updated array
@@ -318,7 +318,7 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.MOVE_RULE_UP: {
             const { ruleIndex } = action.payload;
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
-            console.log(`in MOVE_RULE_UP, action.payload: ${JSON.stringify(action.payload)} `);
+            // console.log(`in MOVE_RULE_UP, action.payload: ${JSON.stringify(action.payload)} `);
             const rulesets = moveRuleUpByIndex(activeRuleSet, ruleIndex);
 
             // Create a copy of the updatedFlag array
@@ -336,7 +336,7 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.MOVE_RULE_DOWN: {
             const { ruleIndex } = action.payload;
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
-            console.log(`in MOVE_RULE_DOWN, action.payload: ${JSON.stringify(action.payload)} `);
+            // console.log(`in MOVE_RULE_DOWN, action.payload: ${JSON.stringify(action.payload)} `);
             const rulesets = moveRuleDownByIndex(activeRuleSet, ruleIndex);
 
             // Create a copy of the updatedFlag array
@@ -352,10 +352,10 @@ function ruleset(state = initialState, action = '') {
         }
         case ActionTypes.UPLOAD_LIST: {
             const kList = action.payload;
-            console.log(`Action payload: kList = ${JSON.stringify(kList)}`);
+            // console.log(`Action payload: kList = ${JSON.stringify(kList)}`);
 
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
-            console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
+            // console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
 
             // Ensure activeRuleSet is defined
             if (activeRuleSet) {
@@ -378,12 +378,12 @@ function ruleset(state = initialState, action = '') {
                     }
                 });
             } else {
-                console.error('activeRuleSet is undefined');
+                // console.error('activeRuleSet is undefined');
             }
 
-            console.log(`Updated keywords: ${JSON.stringify(activeRuleSet.keywords)}`);
+            // console.log(`Updated keywords: ${JSON.stringify(activeRuleSet.keywords)}`);
 
-            console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
+            // console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
 
             // Update the ruleset in the rulesets array
             const rulesets = [...state.rulesets];
@@ -395,12 +395,12 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.REMOVE_LIST: {
             const { name } = action.payload;
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
-            console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
+            // console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
 
             // Filter out the keyword object with the same name as action.payload.name
             activeRuleSet.keywords = activeRuleSet.keywords.filter(keyword => keyword.name !== name);
 
-            console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
+            // console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
 
             // Update the ruleset in the rulesets array
             const rulesets = [...state.rulesets];
@@ -412,12 +412,12 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.UPDATE_DEFAULT_ACTION: {
             const { defaultAction } = action.payload;
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
-            console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
+            // console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
 
             // Update the defaultAction
             activeRuleSet.defaultAction = defaultAction;
 
-            console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
+            // console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
 
             // Update the ruleset in the rulesets array
             const rulesets = [...state.rulesets];
@@ -434,13 +434,13 @@ function ruleset(state = initialState, action = '') {
         case ActionTypes.UPDATE_FEATURE: {
             const { feature } = action.payload;
             const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
-            console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
+            // console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
 
             // Update the feature
             activeRuleSet.feature = feature;
-            console.log(`Updated feature: ${JSON.stringify(activeRuleSet.feature)}`)
+            // console.log(`Updated feature: ${JSON.stringify(activeRuleSet.feature)}`)
 
-            console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
+            // console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
 
             // Update the ruleset in the rulesets array
             const rulesets = [...state.rulesets];
@@ -456,9 +456,9 @@ function ruleset(state = initialState, action = '') {
 
         case ActionTypes.CLEAR_UPDATED_FLAG: {
             const updatedFlag = [...state.updatedFlag];
-            console.log(`in CLEAR_UPDATED_FLAG, updatedFlag: ${JSON.stringify(updatedFlag)} `);
+            // console.log(`in CLEAR_UPDATED_FLAG, updatedFlag: ${JSON.stringify(updatedFlag)} `);
             updatedFlag[state.activeRuleset] = false;
-            console.log(`in CLEAR_UPDATED_FLAG, updatedFlag: ${JSON.stringify(updatedFlag)} `);
+            // console.log(`in CLEAR_UPDATED_FLAG, updatedFlag: ${JSON.stringify(updatedFlag)} `);
             return { ...state, updatedFlag }
         }
 

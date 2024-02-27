@@ -56,7 +56,7 @@ NavParentLink.propTypes = {
 const NavSubLink = ({ sublinks, visible, onConfirm, activeIndex }) => {
 
   const [active, setActive] = useState(sublinks[activeIndex]);
-  console.log(`activeIndex: ${JSON.stringify(activeIndex)} active: ${JSON.stringify(active)}`)
+  // console.log(`activeIndex: ${JSON.stringify(activeIndex)} active: ${JSON.stringify(active)}`)
 
   const handleClick = (e, link) => {
     e.preventDefault();

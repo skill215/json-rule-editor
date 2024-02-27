@@ -36,7 +36,7 @@ class NavigationPanel extends Component {
     }
 
     render() {
-        console.log(`in NavigationPanel, this.props: ${JSON.stringify(this.props)}`);
+        // console.log(`in NavigationPanel, this.props: ${JSON.stringify(this.props)}`);
         const { closedState, loggedIn, ruleDetails } = this.props;
         let rulesetLink = ruleDetails.length > 0 ?
             [{
@@ -47,7 +47,7 @@ class NavigationPanel extends Component {
                 title: ""
             }] : [];
 
-        console.log(`rulesetLink: ${JSON.stringify(rulesetLink)}`);
+        // console.log(`rulesetLink: ${JSON.stringify(rulesetLink)}`);
 
         rulesetLink = rulesetLink.concat(navmenu);
 

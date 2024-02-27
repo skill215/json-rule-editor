@@ -109,7 +109,7 @@ class Decision extends Component {
     }
 
     setRuleDetailUpdatedFlag(flag) {
-        console.log(`in setRuleDetailUpdatedFlag, flag: ${JSON.stringify(flag)} `);
+        // console.log(`in setRuleDetailUpdatedFlag, flag: ${JSON.stringify(flag)} `);
         this.setState({ ruleDetailUpdatedFlag: flag });
     }
 
@@ -125,7 +125,7 @@ class Decision extends Component {
     updateRule(rule) {
         // console.log(`in updateRule in decision.js, rule: ${JSON.stringify(rule)} `);
         this.props.handleDecisions('UPDATERULE', rule);
-        console.log(`in updateRule, set the ruleDetailUpdatedFlag to true `);
+        // console.log(`in updateRule, set the ruleDetailUpdatedFlag to true `);
 
         this.setState({ editCaseFlag: false, ruleDetailUpdatedFlag: true });
 
@@ -249,7 +249,7 @@ Decision.propTypes = ({
     reset: PropTypes.func,
     decisions: PropTypes.array,
     attributes: PropTypes.array,
-    outcomes: PropTypes.array,
+    outcomes: PropTypes.object,
     moveUp: PropTypes.func,
     moveDown: PropTypes.func,
     getKlnames: PropTypes.func,

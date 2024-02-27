@@ -144,7 +144,7 @@ class HomeContainer extends Component {
         return response.json();
       })
       .then(json => {
-        console.log(`Success: ${JSON.stringify(json)}`);
+        // console.log(`Success: ${JSON.stringify(json)}`);
         if (json.length > 0) {
           json.forEach(ruleset => {
             this.props.uploadRuleset(ruleset);

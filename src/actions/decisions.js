@@ -70,8 +70,9 @@ export const clearUpdatedFlag = () => {
 }
 
 export const handleDecision = (action, editDecision = {}, metadata = {}) => (dispatch) => {
+    let condition
     if (editDecision && editDecision.condition) {
-        const { condition } = editDecision;
+        condition = editDecision.condition;
     }
     switch (action) {
         case 'ADD': {
