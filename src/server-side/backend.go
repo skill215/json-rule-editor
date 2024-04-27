@@ -13,10 +13,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+
 	"gopkg.in/yaml.v2"
 
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
+	// "github.com/rs/cors"
 	"github.com/tidwall/gjson"
 )
 
@@ -104,39 +106,51 @@ func main() {
 		log.Printf("Own IP: %s\n", ownIP)
 	}
 
-	r := mux.NewRouter()
-	r.HandleFunc("/receive-validate", validate).Methods("POST")
-	r.HandleFunc("/receive-ruleset", receiveRuleset).Methods("POST")
-	r.HandleFunc("/fetch-ruleset-from-frontend", fetchRulesetFrontend).Methods("GET")
-	r.HandleFunc("/delete-ruleset", deleteRuleset).Methods("POST") // New route
-	r.HandleFunc("/receive-deploy-ruleset", receiveDeployRuleset).Methods("POST")
-	r.HandleFunc("/fetch-rulesets-from-client", fetchRulesetsClient).Methods("GET")
+	r := gin.Default()
 
-	handler := cors.Default().Handler(r)
+	// Apply CORS middleware to the router
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
-	http.ListenAndServe(":"+config.Server.Port, handler)
+	r.POST("/receive-validate", validate)
+	r.POST("/receive-ruleset", receiveRuleset)
+	r.GET("/fetch-ruleset-from-frontend", fetchRulesetFrontend)
+	r.POST("/delete-ruleset", deleteRuleset) // New route
+	r.POST("/receive-deploy-ruleset", receiveDeployRuleset)
+	r.GET("/fetch-rulesets-from-client", fetchRulesetsClient)
+
+	// handler := cors.Default().Handler(r)
+	http.ListenAndServe(":"+config.Server.Port, r)
+
+	// http.ListenAndServe(":"+config.Server.Port, handler)
 }
 
-func validate(w http.ResponseWriter, r *http.Request) {
+func validate(c *gin.Context) {
 	log.Println("Starting validation")
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Println("Error reading request body:", err)
-		httpError(w, "Error reading request body", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error reading request body"})
 		return
 	}
 
 	if err := writeToFile(body); err != nil {
 		log.Println("Error writing file:", err)
-		httpError(w, "Error writing file", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error writing file"})
 		return
 	}
 
 	respBody, err := performValidation(body)
 	if err != nil {
 		log.Println("Error performing validation:", err)
-		httpError(w, "Error performing validation", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error performing validation"})
 		return
 	}
 
@@ -154,13 +168,8 @@ func validate(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// Write the innerData as a JSON string to the dataString
-	err = json.NewEncoder(w).Encode(innerData)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	//fmt.Fprint(w, dataString)
+	// Write the innerData as a JSON string to the response
+	c.JSON(http.StatusOK, innerData)
 }
 
 func writeToFile(body []byte) error {
@@ -224,27 +233,26 @@ func performValidation(body []byte) (string, error) {
 	return string(respBody), nil
 }
 
-func httpError(w http.ResponseWriter, message string, err error) {
+func httpError(c *gin.Context, message string, err error) {
 	log.Println("Sending HTTP error:", message, err)
-	http.Error(w, fmt.Sprintf("%s: %v", message, err), http.StatusInternalServerError)
+	c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("%s: %v", message, err)})
 }
-func receiveRuleset(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+
+func receiveRuleset(c *gin.Context) {
+	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		http.Error(w, "Error reading request body",
-			http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading request body"})
 		return
 	}
 
 	dir := rulesetDir
 	err = saveRulesetToFile(body, dir)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error saving ruleset to file: %v", err),
-			http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error saving ruleset to file: %v", err)})
 		return
 	}
 
-	fmt.Fprintf(w, `{"message": "ruleset received and saved to file"}`)
+	c.JSON(http.StatusOK, gin.H{"message": "ruleset received and saved to file"})
 }
 
 func saveRulesetToFile(body []byte, dir string) error {
@@ -272,10 +280,10 @@ func saveRulesetToFile(body []byte, dir string) error {
 	return nil
 }
 
-func receiveDeployRuleset(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+func receiveDeployRuleset(c *gin.Context) {
+	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading request body"})
 		return
 	}
 	log.Println("Request body read successfully in receiveDeployRuleset: ", string(body))
@@ -284,7 +292,7 @@ func receiveDeployRuleset(w http.ResponseWriter, r *http.Request) {
 	log.Println("Ruleset: ", ruleset)
 
 	// Call activateRuleset next
-	activateRuleset(w, []byte(ruleset))
+	activateRuleset(c, []byte(ruleset))
 }
 
 func distributeServerInfo(smsc struct {
@@ -334,20 +342,20 @@ func distributeServerInfo(smsc struct {
 	return true
 }
 
-func activateRuleset(w http.ResponseWriter, body []byte) {
+func activateRuleset(c *gin.Context, body []byte) {
 	log.Println("Activating ruleset")
 
 	config, err := readConfig()
 	if err != nil {
 		log.Println("Error reading config:", err)
-		httpError(w, "Error reading config", err)
+		httpError(c, "Error reading config", err)
 		return
 	}
 	log.Println("Config read successfully")
 
 	if len(config.SMSC) == 0 {
 		log.Println("No SMSC configuration found")
-		httpError(w, "No SMSC configuration found", nil)
+		httpError(c, "No SMSC configuration found", nil)
 		return
 	}
 	log.Println("SMSC configuration found")
@@ -425,16 +433,12 @@ func activateRuleset(w http.ResponseWriter, body []byte) {
 	if anySuccess {
 		err = saveRulesetToFile([]byte(body), deployedDir)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Error saving ruleset to file: %v", err), http.StatusInternalServerError)
+			httpError(c, fmt.Sprintf("Error saving ruleset to file: %v", err), err)
 			return
 		}
 	}
 
-	err = json.NewEncoder(w).Encode(results)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	c.JSON(http.StatusOK, results)
 
 	resultsJSON, err := json.Marshal(results)
 	if err != nil {
@@ -444,12 +448,11 @@ func activateRuleset(w http.ResponseWriter, body []byte) {
 	}
 }
 
-func deleteRuleset(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+func deleteRuleset(c *gin.Context) {
+	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Printf("Error reading request body: %v\n", err) // Debug info
-		http.Error(w, "Error reading request body",
-			http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading request body"})
 		return
 	}
 
@@ -461,40 +464,31 @@ func deleteRuleset(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		log.Printf("File %s does not exist\n", filePath) // Debug info
-		http.Error(w, fmt.Sprintf("File %s does not exist", filePath),
-			http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("File %s does not exist", filePath)})
 		return
 	}
 
 	err = os.Remove(filePath)
 	if err != nil {
 		log.Printf("Error deleting file %s: %v\n", filePath, err) // Debug info
-		http.Error(w, fmt.Sprintf("Error deleting file %s", filePath),
-			http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error deleting file %s", filePath)})
 		return
 	}
 
 	log.Printf("File %s deleted successfully\n", filePath) // Debug info
-	fmt.Fprintf(w, `{"message": "ruleset %s deleted"}`, name)
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("ruleset %s deleted", name)})
 }
-func fetchRulesetFrontend(w http.ResponseWriter, r *http.Request) {
+
+func fetchRulesetFrontend(c *gin.Context) {
 	dir := rulesetDir
 
 	results, err := readRuleFiles(dir)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	jsonResults, err := json.Marshal(results)
-	if err != nil {
-		http.Error(w, "Error converting results to JSON",
-			http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResults)
+	c.JSON(http.StatusOK, results)
 }
 
 func readRuleFiles(dir string) ([]map[string]interface{}, error) {
@@ -523,23 +517,15 @@ func readRuleFiles(dir string) ([]map[string]interface{}, error) {
 	return results, nil
 }
 
-func fetchRulesetsClient(w http.ResponseWriter, r *http.Request) {
+func fetchRulesetsClient(c *gin.Context) {
 	dir := deployedDir
 
 	results, err := readRuleFiles(dir)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	jsonResults, err := json.Marshal(results)
-	if err != nil {
-		http.Error(w, "Error converting results to JSON",
-			http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResults)
+	c.JSON(http.StatusOK, results)
 	log.Printf("Rulesets sent to client successfully\n")
 }

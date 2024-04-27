@@ -5,11 +5,11 @@
 			"type": "string"
 		},
         {
-            "name": "SMSC-ADDRESS",
+            "name": "SMSC-ADDR",
             "type": "string"
         },
         {
-            "name": "VMSC-ADDRESS",
+            "name": "VMSC-ADDR",
             "type": "string"
         },
 		{
@@ -17,11 +17,11 @@
 			"type": "string"
 		},
         {
-            "name": "O-MSISDN",
+            "name": "O-ADDR",
             "type": "string"
         },
         {
-            "name": "D-MSISDN",
+            "name": "D-ADDR",
             "type": "string"
         },
         {
@@ -33,11 +33,7 @@
             "type": "string"
         },
         {
-            "name": "O-IMEI",
-            "type": "string"
-        },
-        {
-            "name": "D-IMEI",
+            "name": "DCS",
             "type": "string"
         },
         {

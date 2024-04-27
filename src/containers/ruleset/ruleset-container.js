@@ -20,11 +20,12 @@ import Notification from '../../components/notification/notification';
 import '../../sass/components/ruleset-container.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { backendIp } from '../../../config'
 
 // const tabs = [{ name: 'Facts' }, { name: 'Decisions' }, { name: 'Validate' }, { name: 'Generate' }, { name: 'Apply' }];
 const tabs = [{ name: 'Rules' }, { name: 'Keyword Lists' }, { name: 'Validate' }, { name: 'Local Ops' }, { name: 'Server Ops' }];
 
-const backendIp = "161.189.188.48"
+// const backendIp = "161.189.188.48"
 class RulesetContainer extends Component {
 
   constructor(props) {
@@ -83,7 +84,8 @@ class RulesetContainer extends Component {
   }
 
   generateFile() {
-    const { ruleset } = this.props;
+    const ruleset = { ...this.props.ruleset, timestamp: new Date().toISOString() };
+
     console.log(`ruleset == ${ruleset}`);
     const fileData = JSON.stringify(ruleset, null, '\t');
     const blob = new Blob([fileData], { type: "application/json" });
@@ -118,11 +120,11 @@ class RulesetContainer extends Component {
 
   sendRuleset() {
     this.cancelAlert();
-    const { ruleset } = this.props;
+    const ruleset = { ...this.props.ruleset, timestamp: new Date().toISOString() };
     console.log(`this.props == ${JSON.stringify(this.props)}`);
     const fileData = JSON.stringify(ruleset, null, '\t');
 
-    // console.log(`The JSON body is: ${fileData}`);
+    console.log(`The JSON body is: ${fileData}`);
 
     fetch('http://' + backendIp + ':3001/receive-ruleset', {
       method: 'POST',
@@ -462,7 +464,7 @@ class RulesetContainer extends Component {
   }
 
   getKlnames = () => {
-    const { keywords: klists } = this.props.ruleset;
+    const { lists: klists } = this.props.ruleset;
 
     if (!klists) {
       console.log('klists is undefined');
@@ -487,7 +489,7 @@ class RulesetContainer extends Component {
 
 
   render() {
-    const { attributes, decisions, name, keywords: klists, defaultAction, feature } = this.props.ruleset;
+    const { attributes, decisions, name, lists: klists, defaultAction, feature } = this.props.ruleset;
     const { vState } = this.state;
     // console.log(`deployResponses ==> ${JSON.stringify(this.state.deployResponses)}`);
     // if (this.state.deployResponses && this.state.deployResponses.length > 0) {

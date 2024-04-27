@@ -359,29 +359,29 @@ function ruleset(state = initialState, action = '') {
 
             // Ensure activeRuleSet is defined
             if (activeRuleSet) {
-                // If activeRuleSet.keywords is undefined, initialize it as an empty array
-                if (!Array.isArray(activeRuleSet.keywords)) {
-                    activeRuleSet.keywords = [];
+                // If activeRuleSet.lists is undefined, initialize it as an empty array
+                if (!Array.isArray(activeRuleSet.lists)) {
+                    activeRuleSet.lists = [];
                 }
 
                 // For each keyword in kList.klist
                 kList.klist.forEach(newKeyword => {
-                    // Find the index of the keyword with the same name in the existing keyword list
-                    const index = activeRuleSet.keywords.findIndex(keyword => keyword.name === newKeyword.name);
+                    // Find the index of the list with the same name in the existing list
+                    const index = activeRuleSet.lists.findIndex(keyword => keyword.name === newKeyword.name);
 
                     if (index !== -1) {
                         // If a keyword with the same name exists, replace it with the new keyword
-                        activeRuleSet.keywords[index] = newKeyword;
+                        activeRuleSet.lists[index] = newKeyword;
                     } else {
                         // If no such keyword exists, append the new keyword to the keyword list
-                        activeRuleSet.keywords.push(newKeyword);
+                        activeRuleSet.lists.push(newKeyword);
                     }
                 });
             } else {
                 // console.error('activeRuleSet is undefined');
             }
 
-            // console.log(`Updated keywords: ${JSON.stringify(activeRuleSet.keywords)}`);
+            // console.log(`Updated lists: ${JSON.stringify(activeRuleSet.lists)}`);
 
             // console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
 
@@ -398,7 +398,7 @@ function ruleset(state = initialState, action = '') {
             // console.log(`Active rule set before update: ${JSON.stringify(activeRuleSet)}`);
 
             // Filter out the keyword object with the same name as action.payload.name
-            activeRuleSet.keywords = activeRuleSet.keywords.filter(keyword => keyword.name !== name);
+            activeRuleSet.lists = activeRuleSet.lists.filter(keyword => keyword.name !== name);
 
             // console.log(`Active rule set after update: ${JSON.stringify(activeRuleSet)}`);
 

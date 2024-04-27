@@ -179,6 +179,7 @@ class AddDecision extends Component {
         const newValue = e.target.value.replace(/,/g, ';');
         const addAttribute = { ...this.state.addAttribute };
         addAttribute[name] = newValue;
+        addAttribute['valueType'] = "string";
         this.setState({ addAttribute });
     }
 
@@ -186,6 +187,8 @@ class AddDecision extends Component {
         const newValue = e.target.value.replace(/,/g, ';');
         const addAttribute = { ...this.state.addAttribute };
         addAttribute[name] = newValue;
+        addAttribute['valueType'] = "list";
+
         this.setState({ addAttribute });
     }
 
@@ -209,9 +212,19 @@ class AddDecision extends Component {
         addAttribute[name] = e.target.value;
 
         // Define the operators to exclude
-        const excludeOperators = ['longerThan', 'shorterThan', 'match'];
+        const excludeOperators = [
+            'longerThan',
+            'shorterThan',
+            'match',
+            "isMO",
+            "isMT",
+            "isAO",
+            "isAT",
+            "isConcatenated",
+            "isHomerouting"];
 
         // If the operator is not in the excludeOperators list, set a flag in the state
+        console.log(`printing name=${name}, event=${e.target.value}`);
         if (name === 'operator' && excludeOperators.includes(e.target.value)) {
             this.setState({ isOperatorInList: false });
         } else {
@@ -307,13 +320,16 @@ class AddDecision extends Component {
 
     mapNodeName(val) {
         const node = {};
-        const { addAttribute: { name, operator, value, path }, attributes } = this.state;
+        const { addAttribute: { name, operator, value, valueType, path }, attributes } = this.state;
+        console.log(`Printing addAttribute =========> ${JSON.stringify(this.state.addAttribute)}`);
+        console.log(`Printing attributes =========> ${JSON.stringify(attributes)}`);
         if (val === 'Add All' || val === 'Add Any') {
             node['name'] = val === 'Add All' ? 'all' : 'any';
             node['nodeSvgShape'] = nodeStyle;
             node['children'] = [];
         } else {
             node['name'] = name;
+            node['valueType'] = valueType;
             let factValue = value.trim();
             const attProps = attributes.find(att => att.name === name);
             if (attProps.type === 'number') {
@@ -325,6 +341,7 @@ class AddDecision extends Component {
             }
             node['attributes'] = { ...fact };
         }
+        console.log(`Printing node =========> ${JSON.stringify(node)}`);
         return node;
     }
 
@@ -572,7 +589,7 @@ class AddDecision extends Component {
                 ) : this.state.isCharacteristics ? (
                     <div>
                         <SelectField
-                            options={['TRUE', 'FALSE']}
+                            options={['true', 'false']}
                             onChange={(e) => this.onChangeInputSelector(e, 'value')}
                             value={addAttribute.value}
                             error={addAttribute.error.value}

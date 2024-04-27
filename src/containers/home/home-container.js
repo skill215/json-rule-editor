@@ -14,8 +14,7 @@ import { RULE_AVAILABLE_UPLOAD, RULE_UPLOAD_ERROR } from '../../constants/messag
 import ApperanceContext from '../../context/apperance-context';
 import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import SweetAlert from 'react-bootstrap-sweetalert';
-
-const backendIp = "161.189.188.48"
+import { backendIp } from '../../../config'
 
 function readFile(file, cb) {
   // eslint-disable-next-line no-undef

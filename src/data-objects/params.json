@@ -1,19 +1,19 @@
     {
         "param-type": [
-            "O-MSISDN",
-            "D-MSISDN",
-            "O-IMSI",
-            "D-IMSI",
-            "O-VMSC",
-            "O-SMSC",
+            "OADDR",
+            "DADDR",
+            "OIMSI",
+            "DIMSI",
+            "OVMSC",
+            "OSMSC",
             "PID",
             "SET-AO",
-            "SUCCESS_IND"
+            "ERROR-CODE",
+            "SUCCESS-IND"
         ],
         "event-type": [
             "ACCEPT",
             "REJECT",
-            "LOG",
             "MODIFY"
         ]
     }

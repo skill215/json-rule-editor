@@ -29,8 +29,8 @@ const fieldValidationByType = (value, type, operator) => {
                 const re = /^(.*)([gimuy]*)$/;
                 return re.test(value)
             } else {
-                // Validate if the attribute value is a valid string with digits and alphabetic chars.
-                let re = /^(\+)?[A-Za-z0-9; _-]+$/;
+                // Validate if the attribute value is a valid string with digits, alphabetic chars, and UTF-8 characters.
+                let re = /^(\+)?[\p{L}0-9; _-]+$/u;
 
                 let matched = re.test(value);
                 console.log(`matched: ${matched}`);

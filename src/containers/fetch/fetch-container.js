@@ -14,8 +14,9 @@ import { RULE_AVAILABLE_UPLOAD, RULE_UPLOAD_ERROR } from '../../constants/messag
 import ApperanceContext from '../../context/apperance-context';
 import { faCloudArrowDown } from '@fortawesome/free-solid-svg-icons'
 import SweetAlert from 'react-bootstrap-sweetalert';
+import { backendIp } from '../../../config'
 
-const backendIp = "161.189.188.48"
+// const backendIp = "161.189.188.48"
 
 
 class FetchContainer extends Component {
