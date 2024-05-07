@@ -54,11 +54,19 @@ class AddDecision extends Component {
 
         this.state = {
             attributes: props.attributes,
-            outcome: props.editDecision ? props.outcome : [{
+            outcome: props.editDecision ? props.outcome.map(outcomeItem => ({
+                ...outcomeItem,
+                params: outcomeItem.params.map(param => ({
+                    key: param.key || '', // Assuming 'key' exists in your current structure and you want to keep its value or set a default
+                    operator: param.operator || '', // Same assumption as above
+                    ovalue: param.ovalue || '', // Initialize 'ovalue' with an existing value or set a default
+                    tvalue: param.tvalue || '' // Initialize 'tvalue' with an existing value or set a default
+                }))
+            })) : [{
                 index: 0,
                 value: eventTypes.length > 0 ? eventTypes[0] : '',
                 error: {},
-                params: []
+                params: [] // Keep it empty or initialize with default objects if necessary
             }],
             addAttribute,
             enableTreeView: props.editDecision,
@@ -129,11 +137,13 @@ class AddDecision extends Component {
             this.setState({ formError, outcome: updatedOutcomes });
         } else {
             const conditions = this.state.outcome.map((outcome, index) => {
-                let outcomeParams = {};
-                Object.entries(outcome.params).forEach(([key, value]) => {
-                    outcomeParams[key] = value;
-                    console.log(`param: key: ${key}; value: ${value}`);
-                })
+                let outcomeParams = [];
+                outcome.params.forEach(param => {
+                    const { key, operator, ovalue, tvalue } = param;
+                    console.log(`param: key: ${key}; operator: ${operator}; ovalue: ${ovalue}; tvalue: ${tvalue}`);
+                    // Assuming outcomeParams is an array now, given the new structure. Adjust as necessary.
+                    outcomeParams.push({ key, operator, ovalue, tvalue });
+                });
                 console.log(`Printing outcome params ==========> ${JSON.stringify(outcomeParams)}`);
                 console.log(`Printing node =========> ${JSON.stringify(this.state.node)}`);
                 outcome = this.replaceTypeWithValue(outcome);
@@ -243,16 +253,22 @@ class AddDecision extends Component {
     }
 
     addParams(outcomeIndex) {
+        console.log(`Printing outcomeIndex in addParams =========> ${outcomeIndex}`);
         const { outcome: outcomes } = this.state;
-        const newParams = { ...outcomes[outcomeIndex].params, '': '' };
-        outcomes[outcomeIndex].params = newParams;
+        // Create a new parameter object with default or empty values
+        const newParam = { key: '', operator: '', ovalue: '', tvalue: '' };
+        // Add the new parameter object to the params array of the specified outcome
+        outcomes[outcomeIndex].params.push(newParam);
+        // Update the state with the modified outcomes array
         this.setState({ outcome: outcomes });
+        console.log(`Printing outcomes in addParams =========> ${JSON.stringify(outcomes)}`);
     }
 
     handleRemoveParam(index, outcomeIndex) {
         const { outcome: outcomes } = this.state;
-        const paramsKeys = Object.keys(outcomes[outcomeIndex].params);
-        delete outcomes[outcomeIndex].params[paramsKeys[index]];
+        // Remove the parameter object at the specified index from the params array
+        outcomes[outcomeIndex].params.splice(index, 1);
+        // Update the state with the modified outcomes array
         this.setState({ outcome: outcomes });
     }
 
@@ -263,7 +279,7 @@ class AddDecision extends Component {
     addOutcome = () => {
         this.setState(prevState => {
             const lastIndex = prevState.outcome.length > 0 ? prevState.outcome[prevState.outcome.length - 1].index : -1;
-            // console.log(`Printing lastIndex =========> ${lastIndex}`);
+            // Initialize a new outcome with an empty params array, ready to hold objects with the structure { key, operator, ovalue, tvalue }
             return {
                 outcome: [...prevState.outcome, { value: '', params: [], index: lastIndex + 1 }],
             };
@@ -272,8 +288,7 @@ class AddDecision extends Component {
 
     handleOutputParams(e, type, index, outcomeIndex) {
         const { outcome: outcomes } = this.state;
-        const params = { ...outcomes[outcomeIndex].params };
-        const keys = Object.keys(params);
+        const params = [...outcomes[outcomeIndex].params];
         console.log(`Printing index =========> ${index}`);
         console.log(`Printing outcomeIndex =========> ${outcomeIndex}`);
         console.log(`Printing type =========> ${type}`);
@@ -281,14 +296,18 @@ class AddDecision extends Component {
         console.log(`Printing outcomes =========> ${JSON.stringify(outcomes)}`);
 
         if (type === 'pkey') {
-            const newKey = e.target.value;
-            const oldKey = keys[index];
-            params[newKey] = params[oldKey];
-            delete params[oldKey];
-        } else if (type === 'pvalue') {
-            params[keys[index]] = e.target.value;
+            // Update the key property of the specific param object
+            outcomes[outcomeIndex].params[index].key = e.target.value;
+        } else if (type === 'operator') {
+            // Update the operator property of the specific param object
+            outcomes[outcomeIndex].params[index].operator = e.target.value;
+        } else if (type === 'originalValue') {
+            // Update the ovalue property of the specific param object
+            outcomes[outcomeIndex].params[index].ovalue = e.target.value;
+        } else if (type === 'targetValue') {
+            // Update the tvalue property of the specific param object
+            outcomes[outcomeIndex].params[index].tvalue = e.target.value;
         }
-
         outcomes[outcomeIndex].params = params;
         this.setState({ outcome: outcomes });
     }
@@ -627,11 +646,12 @@ class AddDecision extends Component {
 
     outputPanel() {
         const { outcome: outcomes } = this.state;
-        // console.log(`Printing outcomes =========> ${JSON.stringify(outcomes)}`);
+        console.log(`Printing outcomes in outputPanel =========> ${JSON.stringify(outcomes)}`);
         const { editDecision } = this.props;
         const { background } = this.context;
         const paramOptions = paramsOptions["param-type"];
         const eventTypes = paramsOptions["event-type"];
+        const operators = paramsOptions["operator"];
 
 
         return (<Panel>
@@ -656,23 +676,52 @@ class AddDecision extends Component {
                     </div>
                     <div>
                         {outcome.params && Object.keys(outcome.params).map((key, ind) =>
-                            <div key={ind} className="add-field-panel" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                                    <label style={{ marginRight: '10px' }}>Key</label>
-                                    <select value={key} onChange={(e) => this.handleOutputParams(e, 'pkey', ind, index)}>
-                                        {paramOptions.map((option, index) =>
-                                            <option key={index} value={option}>{option}</option>
-                                        )}
-                                    </select>
+                            <div key={ind} className="add-field-panel" style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                marginBottom: '10px',
+                                border: '2px solid #ccc', // Add a light grey border for a subtle box effect
+                                borderRadius: '8px', // Optional: adds rounded corners for a softer look
+                                padding: '15px', // Add some padding inside the box to separate the content from the borders
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)' // Optional: adds a subtle shadow for depth
+                            }}>
+                                {/* First Row: Key and Operator */}
+                                <div style={{ display: 'flex', marginBottom: '5px' }}>
+                                    <div style={{ flex: 1, marginRight: '10px' }}>
+                                        <label style={{ marginRight: '10px' }}>Key</label>
+                                        <select value={outcome.params[key].key} onChange={(e) => this.handleOutputParams(e, 'pkey', ind, index)}>
+                                            <option value="" disabled selected={!outcome.params[key].key}>Please select</option>
+                                            {paramOptions.map((keyOption, keyIndex) =>
+                                                <option key={keyIndex} value={keyOption}>{keyOption}</option>
+                                            )}
+                                        </select>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{ marginRight: '10px' }}>Operator</label>
+                                        <select value={outcome.params[key].operator} onChange={(e) => this.handleOutputParams(e, 'operator', ind, index)}>
+                                            <option value="" disabled selected={!outcome.params[key].operator}>Please select</option>
+                                            {operators.map((operator, operatorIndex) =>
+                                                <option key={operatorIndex} value={operator}>{operator}</option>
+                                            )}
+                                        </select>
+                                    </div>
                                 </div>
-                                <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                                    <label style={{ marginRight: '10px' }}>Value</label>
-                                    <InputField onChange={(value) => this.handleOutputParams(value, 'pvalue', ind, index)} value={outcome.params[key]} />
+                                {/* Second Row: Original Value, Target Value, and Remove */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ flex: 1, marginRight: '10px' }}>
+                                        <label style={{ marginRight: '10px' }}>Original Value</label>
+                                        <input type="text" onChange={(e) => this.handleOutputParams(e, 'originalValue', ind, index)} value={outcome.params[key].ovalue} disabled={outcome.params[key].operator === 'SET'} />
+                                    </div>
+                                    <div style={{ flex: 1, marginRight: '10px' }}>
+                                        <label style={{ marginRight: '10px' }}>Target Value</label>
+                                        <input type="text" onChange={(e) => this.handleOutputParams(e, 'targetValue', ind, index)} value={outcome.params[key].tvalue} />
+                                    </div>
+                                    <div style={{ flex: 0 }}>
+                                        <button onClick={() => this.handleRemoveParam(ind, index)}>Remove</button>
+                                    </div>
                                 </div>
-                                <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                                    <button onClick={() => this.handleRemoveParam(ind, index)}>Remove</button>
-                                </div>
-                            </div>)}
+                            </div>)
+                        }
                     </div>
                 </div>
             ))}

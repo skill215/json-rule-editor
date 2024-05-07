@@ -1,11 +1,11 @@
     {
         "param-type": [
-            "OADDR",
-            "DADDR",
-            "OIMSI",
-            "DIMSI",
-            "OVMSC",
-            "OSMSC",
+            "O-ADDR",
+            "D-ADDR",
+            "O-IMSI",
+            "D-IMSI",
+            "O-VMSC",
+            "O-SMSC",
             "PID",
             "SET-AO",
             "ERROR-CODE",
@@ -15,5 +15,10 @@
             "ACCEPT",
             "REJECT",
             "MODIFY"
+        ],
+        "operator": [
+            "CHANGE-PREFIX",
+            "CHANGE-SUFFIX",
+            "SET"
         ]
     }

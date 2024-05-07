@@ -65,12 +65,17 @@ class Decision extends Component {
         const editCondition = transformRuleToTree(decision);
         console.log(`in editCondition, editCondition: ${JSON.stringify(editCondition)} `);
         let outputParams = [];
-        if (decision.event.params && Object.keys(decision.event.params).length > 0) {
-            outputParams = Object.keys(decision.event.params).map(key => ({ pkey: key, pvalue: decision.event.params[key] }))
+        if (decision.event.params && decision.event.params.length > 0) {
+            outputParams = decision.event.params.map(param => ({
+                key: param.key,
+                operator: param.operator,
+                ovalue: param.ovalue,
+                tvalue: param.tvalue
+            }));
         }
 
         this.setState({
-            editCaseFlag: true, 
+            editCaseFlag: true,
             editCondition,
             editDecisionIndex: decisionIndex,
             editOutcome: decision.event,
@@ -94,7 +99,7 @@ class Decision extends Component {
         }
         console.log(`in addCondition, set the ruleDetailUpdatedFlag to true `);
 
-        this.setState({ showAddRuleCase: false, ruleDetailUpdatedFlag: true});
+        this.setState({ showAddRuleCase: false, ruleDetailUpdatedFlag: true });
     }
 
     updateCondition(condition, metadata) {
@@ -222,7 +227,7 @@ class Decision extends Component {
             {this.state.editCaseFlag && <AddDecision attributes={this.props.attributes} editCondition={this.state.editCondition}
                 outcome={this.state.editOutcome} editDecision addCondition={this.updateCondition} cancel={this.cancelAddAttribute} getKlnames={this.getKlnames} buttonProps={editButtonProps} />}
 
-            <DecisionDetails outcomes={filteredOutcomes} editCondition={this.editCondition} ruleDetailUpdatedFlag={this.state.ruleDetailUpdatedFlag} removeCase={this.removeCase} removeDecisions={this.removeDecisions} updateRule={this.updateRule} moveUp={this.moveUp} moveDown={this.moveDown} getKlnames={this.getKlnames} setRuleDetailUpdatedFlag={this.setRuleDetailUpdatedFlag}/>
+            <DecisionDetails outcomes={filteredOutcomes} editCondition={this.editCondition} ruleDetailUpdatedFlag={this.state.ruleDetailUpdatedFlag} removeCase={this.removeCase} removeDecisions={this.removeDecisions} updateRule={this.updateRule} moveUp={this.moveUp} moveDown={this.moveDown} getKlnames={this.getKlnames} setRuleDetailUpdatedFlag={this.setRuleDetailUpdatedFlag} />
 
             {!bannerflag && Object.keys(outcomes).length < 1 && <Banner message={this.state.message} onConfirm={this.handleAdd} />}
         </div>);
@@ -235,12 +240,12 @@ Decision.defaultProps = ({
     reset: () => false,
     decisions: [],
     attributes: [],
-    outcomes: {},
+    outcomes: [],
     moveUp: () => false,
     moveDown: () => false,
     getKlnames: () => false,
     defaultAction: '',
-    feature: '', 
+    feature: '',
 });
 
 Decision.propTypes = ({

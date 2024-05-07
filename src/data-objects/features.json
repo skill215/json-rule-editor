@@ -1,6 +1,7 @@
 {
     "features": [
         "Spamming Protection",
-        "Content Based Filtering"
+        "Content Based Filtering",
+        "Number Conversion"
     ]
 }

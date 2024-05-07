@@ -267,22 +267,48 @@ class DecisionDetails extends Component {
                     </div>
                     <Tree treeData={transformedData.node} count={transformedData.depthCount} />
                     {transformedData.event.params && <div className="view-params-container">
-                        <h4>Params  </h4>
-                        <ViewAttribute items={transformedData.event.params} />
+                        <h4>Params</h4>
+                        <ViewAttribute items={transformedData.event.params.map(param => ({
+                            key: param.key,
+                            value: `Operator: ${param.operator}, Original Value: ${param.ovalue}, Target Value: ${param.tvalue}`
+                        }))} />
                     </div>}
                     {transformedData.event && <div className="view-event-container">
                         <h4>Actions</h4>
                         {transformedData.event.map((event, i) => (
                             <div key={i}>
-                                {Object.keys(event.params).length > 0
-                                    ? <p>{event.type} - {JSON.stringify(event.params)}</p>
+                                {event.params && event.params.length > 0
+                                    ? <div>
+                                        <h4>{event.type}</h4>
+                                        <table style={{ borderCollapse: 'collapse' }}>
+                                            <thead>
+                                                <tr>
+                                                    <th style={{ borderRight: '1px solid black', padding: '5px' }}>Key</th>
+                                                    <th style={{ borderRight: '1px solid black', padding: '5px' }}>Operator</th>
+                                                    <th style={{ borderRight: '1px solid black', padding: '5px' }}>Original Value</th>
+                                                    <th style={{ padding: '5px' }}>Target Value</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {event.params.map((param, index) =>
+                                                    <tr key={index}>
+                                                        <td style={{ borderRight: '1px solid black', padding: '5px' }}>{param.key}</td>
+                                                        <td style={{ borderRight: '1px solid black', padding: '5px' }}>{param.operator}</td>
+                                                        <td style={{ borderRight: '1px solid black', padding: '5px' }}>{param.ovalue}</td>
+                                                        <td style={{ padding: '5px' }}>{param.tvalue}</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     : <p>{event.type}</p>
                                 }
                             </div>
                         ))}
                     </div>}
                 </div>
-            </div>)
+            </div>
+        );
     }
 
     render() {
