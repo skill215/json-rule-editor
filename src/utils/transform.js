@@ -11,14 +11,16 @@ const nodeSvgShape = {
 };
 
 const mapFactToChildren = (fact) => {
-    if (has(fact, 'fact') && has(fact, 'operator') && has(fact, 'value')) {
+    if (has(fact, 'fact') && has(fact, 'operator') && has(fact, 'value') && has(fact, 'valueType')) {
         let value = fact.value;
+        let valueType = fact.valueType;
         let attributes = {};
         if (isArray(fact.value)) {
             value = join(fact.value, ',');
         }
 
         attributes[fact.operator] = value;
+        attributes['valueType'] = valueType;
 
         if (fact.path) {
             attributes['path'] = fact.path;
@@ -67,23 +69,27 @@ export const transformRuleToTree = (conditions = []) => {
 
 const mapChildNodeToFacts = (children) => {
     console.log(`children in mapChildNodeToFacts: ${JSON.stringify(children)}`);
-    const fact = { fact: children.name };
+    const fact = { fact: children.name }; // Initialize fact object without operators
+
+    // Assuming there's only one operator-value pair besides valueType
     Object.keys(children.attributes).forEach((key) => {
-        if (key === 'path') {
-            fact['path'] = children.attributes.path;
+        if (key === 'valueType') {
+            fact['valueType'] = children.attributes[key];
         } else {
-            fact['operator'] = key;
-            let value;
-            if (String(children.attributes[key]).indexOf(',') > -1) {
-                value = children.attributes[key].split(',');
-            } else {
-                value = children.attributes[key];
+            // Directly assign the first encountered attribute as the operator and its value
+            // This assumes that there's only one such pair to process
+            if (!fact.operator) { // Check if operator has not been assigned yet
+                fact['operator'] = key;
+                let value = children.attributes[key];
+                if (String(value).indexOf(',') > -1) {
+                    value = value.split(',');
+                }
+                fact['value'] = value;
             }
-            fact['value'] = value;
-            fact['valueType'] = children['valueType'];
         }
     });
-    console.log
+
+    console.log(`fact in mapChildNodeToFacts: ${JSON.stringify(fact)}`);
     return fact;
 }
 

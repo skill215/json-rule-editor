@@ -31,6 +31,7 @@ class DecisionDetails extends Component {
 
 
     static getSortedRules = (input) => {
+        console.log(`in getSortedRules, input =========> ${JSON.stringify(input)}`);
         let output = {};
 
         if (!input) {
@@ -55,6 +56,7 @@ class DecisionDetails extends Component {
             sortedOutput[rule.ruleIndex] = rule;
         });
 
+        console.log(`in getSortedRules, sortedOutput =========> ${JSON.stringify(sortedOutput)}`);
         return sortedOutput;
     }
 
@@ -254,7 +256,7 @@ class DecisionDetails extends Component {
     }
 
     renderConditions = (conditions, index) => {
-        console.log(`index =========> ${JSON.stringify(index)}`);
+        // console.log(`index =========> ${JSON.stringify(index)}`);
         console.log(`conditions =========> ${JSON.stringify(conditions)}`);
         const transformedData = transformRuleToTree(conditions);
         console.log(`transformedData =========> ${JSON.stringify(transformedData)}`);

@@ -9,7 +9,8 @@
             "PID",
             "SET-AO",
             "ERROR-CODE",
-            "SUCCESS-IND"
+            "SUCCESS-IND",
+            "MESSAGE-CONTENT"
         ],
         "event-type": [
             "ACCEPT",
@@ -17,8 +18,8 @@
             "MODIFY"
         ],
         "operator": [
-            "CHANGE-PREFIX",
-            "CHANGE-SUFFIX",
-            "SET"
+            "replacePrefix",
+            "replaceSuffix",
+            "set"
         ]
     }

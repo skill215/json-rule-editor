@@ -197,6 +197,7 @@ class Decision extends Component {
         const { features: featureArray } = features;
         const featureOptions = featureArray.map(feature => ({ value: feature, label: feature }));
 
+        console.log(`filteredOutcomes in decision.js: ${JSON.stringify(filteredOutcomes) }`);
         // console.log(`featureOptions in decision.js: ${JSON.stringify(featureOptions)}`);
 
         return (<div className="rulecases-container">

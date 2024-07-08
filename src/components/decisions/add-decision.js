@@ -137,6 +137,7 @@ class AddDecision extends Component {
             this.setState({ formError, outcome: updatedOutcomes });
         } else {
             const conditions = this.state.outcome.map((outcome, index) => {
+                console.log(`Printing conditions =========> ${JSON.stringify(conditions)}`);
                 let outcomeParams = [];
                 outcome.params.forEach(param => {
                     const { key, operator, ovalue, tvalue } = param;
@@ -348,13 +349,14 @@ class AddDecision extends Component {
             node['children'] = [];
         } else {
             node['name'] = name;
-            node['valueType'] = valueType;
+            // node['valueType'] = valueType;
             let factValue = value.trim();
             const attProps = attributes.find(att => att.name === name);
             if (attProps.type === 'number') {
                 factValue = Number(value.trim());
             }
             let fact = { [operator]: factValue };
+            fact['valueType'] = valueType;
             if (path) {
                 fact['path'] = `.${path}`;
             }
@@ -478,8 +480,8 @@ class AddDecision extends Component {
 
     topPanel() {
         const { topLevelOptions, factsButton, outcomeOptions, editOutcomeOptions, metadata } = this.state;
-        console.log(`Printing node =========> ${JSON.stringify(this.state.node)}`);
-        console.log(`Printing metadata =========> ${JSON.stringify(metadata)}`);
+        // console.log(`Printing node =========> ${JSON.stringify(this.state.node)}`);
+        // console.log(`Printing metadata =========> ${JSON.stringify(metadata)}`);
         return (<div className="add-decision-step">
             <div className="step0">
                 <div>Rule Name:</div>
