@@ -23,7 +23,7 @@ class FetchContainer extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { message: {}, fetchErrFlag: false, fetchErrMsg: '', fetched: false };
+        this.state = { message: {}, fetchErrFlag: false, fetchErrMsg: '', fetched: false, fetching: false };
         this.handleGetFromServer = this.handleGetFromServer.bind(this);
         this.getFromServer = this.getFromServer.bind(this);
         this.cancelAlert = this.cancelAlert.bind(this);
@@ -40,6 +40,7 @@ class FetchContainer extends Component {
     }
 
     handleGetFromServer() {
+        this.setState({ fetching: true });
         fetch('http://'+backendIp+':3001/fetch-ruleset-from-frontend')
             .then(response => {
                 if (!response.ok) {
@@ -62,9 +63,21 @@ class FetchContainer extends Component {
                     fetchErrFlag: true,
                     fetchErrMsg: `Failed to fetch rulesets from server. Please check your connection. Error: ${error.message}`
                 });
+            })
+            .finally(() => {
+                this.setState({ fetching: false });
             });
     }
 
+    fetchingAlert = () => {
+        return (<SweetAlert
+            show={this.state.fetching} // Step 3: Show alert based on fetching state
+            title="Fetching..."
+            onConfirm={() => {}}
+        > Please wait while we fetch the rulesets from the server.
+        </SweetAlert>);
+    }
+    
     navigate(location) {
         const history = createHashHistory();
         this.props.login();
@@ -104,6 +117,7 @@ class FetchContainer extends Component {
                 <FooterLinks links={footerLinks} />
             </div>}
             {this.state.fetchErrFlag && this.fetchErrAlert()}
+            {this.fetchingAlert()} // Render the fetching alert
 
         </div>
     }

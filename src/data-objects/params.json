@@ -9,7 +9,6 @@
             "PID",
             "SET-AO",
             "ERROR-CODE",
-            "SUCCESS-IND",
             "MESSAGE-CONTENT"
         ],
         "event-type": [

@@ -18,6 +18,7 @@
         "isAO",
         "isAT",
         "isConcatenated",
-        "isHomerouting"
+        "isHomerouting",
+        "isAlpha"
     ]
 }

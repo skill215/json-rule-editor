@@ -33,7 +33,7 @@ class HomeContainer extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { uploadedFilesCount: 0, files: [], ruleset: [], uploadError: false, fileExist: false, message: {}, fetchErrFlag: false, fetchErrMsg: '', fetched: false};
+    this.state = { uploadedFilesCount: 0, files: [], ruleset: [], uploadError: false, fileExist: false, message: {}, fetchErrFlag: false, fetchErrMsg: '', fetched: false, fetching: false };
     this.drop = this.drop.bind(this);
     this.allowDrop = this.allowDrop.bind(this);
     this.printFile = this.printFile.bind(this);
@@ -135,7 +135,8 @@ class HomeContainer extends Component {
   }
 
   handleGetFromServer() {
-    fetch('http://'+backendIp+':3001/fetch-ruleset-from-frontend')
+    this.setState({ fetching: true });
+    fetch('http://' + backendIp + ':3001/fetch-ruleset-from-frontend')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -153,11 +154,24 @@ class HomeContainer extends Component {
       })
       .catch(error => {
         console.error('Error:', error);
-        this.setState({ 
-          fetchErrFlag: true, 
-          fetchErrMsg: `Failed to fetch rulesets from server. Please check your connection. Error: ${error.message}` 
+        this.setState({
+          fetchErrFlag: true,
+          fetchErrMsg: `Failed to fetch rulesets from server. Please check your connection. Error: ${error.message}`
         });
+      })
+      .finally(() => {
+        this.setState({ fetching: false });
       });
+  }
+
+  fetchingAlert = () => {
+    return (<SweetAlert
+      key={this.state.fetching ? 'visible' : 'hidden'} // Force re-render by changing key
+      show={this.state.fetching} // Step 3: Show alert based on fetching state
+      title="Fetching..."
+      onConfirm={() => { }}
+    > Please wait while we fetch the rulesets from the server. It may take several minutes if the rulesets are large.
+    </SweetAlert>);
   }
 
   navigate(location) {
@@ -210,6 +224,7 @@ class HomeContainer extends Component {
         <FooterLinks links={footerLinks} />
       </div>}
       {this.state.fetchErrFlag && this.fetchErrAlert()}
+      {this.fetchingAlert()} // Render the fetching alert
 
     </div>
   }

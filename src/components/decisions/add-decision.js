@@ -119,6 +119,7 @@ class AddDecision extends Component {
         this.onChangeInput = this.onChangeInput.bind(this);
         this.onChangeNewOperator = this.onChangeNewOperator.bind(this);
         this.onChangeInputSelector = this.onChangeInputSelector.bind(this);
+        this.onChangeBooleanSelector = this.onChangeBooleanSelector.bind(this);
         this.replaceTypeWithValue = this.replaceTypeWithValue.bind(this);
 
     }
@@ -203,6 +204,14 @@ class AddDecision extends Component {
         this.setState({ addAttribute });
     }
 
+    onChangeBooleanSelector(e, name) {
+        const newValue = e.target.value.replace(/,/g, ';');
+        const addAttribute = { ...this.state.addAttribute };
+        addAttribute[name] = newValue;
+        addAttribute['valueType'] = "string";
+
+        this.setState({ addAttribute });
+    }
 
     onChangeNewFact(e, name) {
         const addAttribute = { ...this.state.addAttribute };
@@ -232,7 +241,9 @@ class AddDecision extends Component {
             "isAO",
             "isAT",
             "isConcatenated",
-            "isHomerouting"];
+            "isHomerouting",
+            "isAlpha",
+        ];
 
         // If the operator is not in the excludeOperators list, set a flag in the state
         console.log(`printing name=${name}, event=${e.target.value}`);
@@ -611,7 +622,7 @@ class AddDecision extends Component {
                     <div>
                         <SelectField
                             options={['true', 'false']}
-                            onChange={(e) => this.onChangeInputSelector(e, 'value')}
+                            onChange={(e) => this.onChangeBooleanSelector(e, 'value')}
                             value={addAttribute.value}
                             error={addAttribute.error.value}
                             label="Value"

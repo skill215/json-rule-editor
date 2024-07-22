@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import pako from 'pako';
 import { connect } from 'react-redux';
 import PageTitle from '../../components/title/page-title';
 import Tabs from '../../components/tabs/tabs';
@@ -86,7 +87,7 @@ class RulesetContainer extends Component {
   generateFile() {
     const ruleset = { ...this.props.ruleset, timestamp: new Date().toISOString() };
 
-    console.log(`ruleset == ${ruleset}`);
+    // console.log(`ruleset == ${ruleset}`);
     const fileData = JSON.stringify(ruleset, null, '\t');
     const blob = new Blob([fileData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -121,17 +122,27 @@ class RulesetContainer extends Component {
   sendRuleset() {
     this.cancelAlert();
     const ruleset = { ...this.props.ruleset, timestamp: new Date().toISOString() };
-    console.log(`this.props == ${JSON.stringify(this.props)}`);
     const fileData = JSON.stringify(ruleset, null, '\t');
 
-    console.log(`The JSON body is: ${fileData}`);
+    // console.log(`The JSON body is: ${fileData}`);
+
+    // Compress the JSON data
+    console.log('Compressing data...');
+    const startTime = performance.now(); // Start timing
+    const compressedData = pako.gzip(fileData);
+    const endTime = performance.now(); // End timing
+    console.log(`Data compressed in ${endTime - startTime} milliseconds.`);
+
+    console.log('Starting fetch operation...');
+    const fetchStartTime = performance.now(); // Start timing the fetch operation
 
     fetch('http://' + backendIp + ':3001/receive-ruleset', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Content-Encoding': 'gzip' // Indicate that the request body is compressed
       },
-      body: fileData
+      body: compressedData // Send the compressed data
     })
       .then(response => {
         if (!response.ok) {
@@ -150,6 +161,10 @@ class RulesetContainer extends Component {
       .catch((error) => {
         console.error('Error:', error);
         this.setState({ sendToServerErrFlag: true, message: error });
+      })
+      .finally(() => {
+        const fetchEndTime = performance.now(); // End timing the fetch operation
+        console.log(`Fetch operation completed in ${fetchEndTime - fetchStartTime} milliseconds.`);
       });
   }
 
@@ -177,7 +192,7 @@ class RulesetContainer extends Component {
   sendDeleteRuleset() {
     this.cancelAlert();
     const { ruleset } = this.props;
-    console.log(`this.props == ${JSON.stringify(this.props)}`);
+    // console.log(`this.props == ${JSON.stringify(this.props)}`);
     const rulesetName = ruleset.name;
 
     fetch('http://' + backendIp + ':3001/delete-ruleset', {
@@ -196,7 +211,7 @@ class RulesetContainer extends Component {
         return response.json();
       })
       .then(data => {
-        console.log('Success:', data);
+        // console.log('Success:', data);
         this.setState({ deleteFlag: true });
       })
       .catch((error) => {
@@ -209,8 +224,8 @@ class RulesetContainer extends Component {
     // const factsFile = JSON.stringify(facts, null, '\t');
     // const rulesetFile = JSON.stringify(ruleset, null, '\t');
 
-    console.log(`The first JSON body is: ${facts}`);
-    console.log(`The second JSON body is: ${ruleset}`);
+    // console.log(`The first JSON body is: ${facts}`);
+    // console.log(`The second JSON body is: ${ruleset}`);
 
     const combinedData = JSON.stringify({ facts: facts, ruleset: ruleset });
 
@@ -230,10 +245,10 @@ class RulesetContainer extends Component {
         return response.json();
       })
       .then(data => {
-        console.log('Success:', data);
+        // console.log('Success:', data);
         this.setState({ validateFlag: true });
-        console.log(`data.success == ${data.success}`);
-        console.log(`data.data == ${data.data}`);
+        // console.log(`data.success == ${data.success}`);
+        // console.log(`data.data == ${data.data}`);
         return { success: data.success, data: data.data };
       })
       .catch((error) => {
@@ -273,17 +288,17 @@ class RulesetContainer extends Component {
   }
 
   transformData(data) {
-    console.log('Transforming data:', data);
+    // console.log('Transforming data:', data);
 
     let deployResponses = [];
 
     data.forEach((item, index) => {
-      console.log(`Processing item ${index}:`, item);
+      // console.log(`Processing item ${index}:`, item);
 
       if (item.result) {
         try {
           let info = JSON.parse(JSON.parse(item.info));
-          console.log(`Parsed info for item ${index}:`, info);
+          // console.log(`Parsed info for item ${index}:`, info);
 
           let node = item.node;
           let result = info.success;
@@ -305,22 +320,29 @@ class RulesetContainer extends Component {
     console.log('Final deployResponses:', deployResponses);
     return deployResponses;
   }
+  
   sendDeployRuleset() {
     this.cancelAlert();
     const { ruleset } = this.props;
-    console.log(`this.props == ${JSON.stringify(this.props)}`);
-    const rulesetName = ruleset.name;
+    const rulesetWithTimestamp = { ...ruleset, timestamp: new Date().toISOString() };
+    const rulesetData = JSON.stringify(rulesetWithTimestamp, null, '\t');
 
-    const rulesetData = JSON.stringify({ ruleset: ruleset });
+    console.log('Compressing data...');
+    const startTime = performance.now(); // Start timing
+    const compressedData = pako.gzip(rulesetData);
+    const endTime = performance.now(); // End timing
+    console.log(`Data compressed in ${endTime - startTime} milliseconds.`);
 
-    this.setState({ isLoading: true });
+    console.log('Starting fetch operation...');
+    const fetchStartTime = performance.now(); // Start timing the fetch operation
 
     return fetch('http://' + backendIp + ':3001/receive-deploy-ruleset', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Content-Encoding': 'gzip' // Indicate that the request body is compressed
       },
-      body: rulesetData
+      body: compressedData // Send the compressed data
     })
       .then(response => {
         if (!response.ok) {
@@ -332,7 +354,6 @@ class RulesetContainer extends Component {
         return response.json();
       })
       .then(data => {
-        console.log('Success:', data);
         let deployResponses = this.transformData(data);
         this.setState({ deployFlag: true, deployResponses: deployResponses, isLoading: false });
         return { success: true, data: data };
@@ -341,6 +362,10 @@ class RulesetContainer extends Component {
         console.log('Error:', error);
         this.setState({ deployErrFlag: true, message: error, isLoading: false });
         return { success: false, error: error };
+      })
+      .finally(() => {
+        const fetchEndTime = performance.now(); // End timing the fetch operation
+        console.log(`Fetch operation completed in ${fetchEndTime - fetchStartTime} milliseconds.`);
       });
   }
 
@@ -471,7 +496,7 @@ class RulesetContainer extends Component {
       return [];
     }
 
-    console.log(`klists in ruleset-container: ${JSON.stringify(klists)}`);
+    // console.log(`klists in ruleset-container: ${JSON.stringify(klists)}`);
     const klNames = klists.map(klist => klist.name);
     console.log(`klNames in ruleset-container: ${JSON.stringify(klNames)}`);
     return klNames;
