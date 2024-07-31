@@ -203,19 +203,19 @@ class AddKlists extends Component {
                     return {
                         name: listName,
                         type: "string",
-                        value: value.split(/[,;]/).map(item => item.trim()) // split on either comma or semicolon
+                        value: value.split(/\r?\n/).map(item => item.trim()) // split on newline, considering both Unix and Windows formats
                     };
                 } else {
                     const nameWithoutExtension = name.replace(/\.[^/.]+$/, ""); // remove file extension from name
                     return {
                         name: nameWithoutExtension,
                         type: "string",
-                        value: value.split(/[,;]/).map(item => item.trim()) // split on either comma or semicolon
+                        value: value.split(/\r?\n/).map(item => item.trim()) // split on newline, considering both Unix and Windows formats
                     };
                 }
             });
 
-            // console.log(`Uploading list content array: ${JSON.stringify(listContentArray)}`);
+            console.log(`Uploading list content array: ${JSON.stringify(listContentArray)}`);
             this.props.uploadList(listContentArray);
             this.props.clearRuleIndex();
         }

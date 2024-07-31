@@ -113,7 +113,7 @@ class KlistDetails extends Component {
             <div key={klist.name}>
                 <PanelBox className={klist.type}>
                     <div className="name">{klist.name}</div>
-                    <div className="value">{klist.value.slice(0, 3).join(', ') + (klist.value.length > 3 ? ', ...' : '')}</div>
+                    <div className="value">{klist.value.slice(0, 3).join(' | ') + (klist.value.length > 3 ? '\n...' : '')}</div>
                     <div className="menu">
                         {/* <a href="" onClick={(e) => this.handleEdit(e, index)}><FontAwesomeIcon icon={faPenToSquare}/></a> */}
                         <a href="" onClick={(e) => this.handleRemove(e, klist)}><FontAwesomeIcon icon={faCircleMinus} title="Delete the list"/></a>

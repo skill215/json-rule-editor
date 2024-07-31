@@ -224,7 +224,7 @@ class HomeContainer extends Component {
         <FooterLinks links={footerLinks} />
       </div>}
       {this.state.fetchErrFlag && this.fetchErrAlert()}
-      {this.fetchingAlert()} // Render the fetching alert
+      {/* {this.fetchingAlert()} // Render the fetching alert */}
 
     </div>
   }

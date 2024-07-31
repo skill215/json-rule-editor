@@ -227,16 +227,19 @@ class RulesetContainer extends Component {
     // console.log(`The first JSON body is: ${facts}`);
     // console.log(`The second JSON body is: ${ruleset}`);
 
-    const combinedData = JSON.stringify({ facts: facts, ruleset: ruleset });
+    const combinedData = { facts: facts, ruleset: ruleset };
 
+    console.log(`The combined JSON body is: ${JSON.stringify(combinedData)}`);
+    
     return fetch('http://' + backendIp + ':3001/receive-validate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: combinedData
+      body: JSON.stringify(combinedData)
     })
       .then(response => {
+        console.log(`response == ${JSON.stringify(response)}`);
         if (!response.ok) {
           return response.text().then(errorText => {
             throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
@@ -245,19 +248,41 @@ class RulesetContainer extends Component {
         return response.json();
       })
       .then(data => {
-        // console.log('Success:', data);
+        console.log('Success:', data);
         this.setState({ validateFlag: true });
-        // console.log(`data.success == ${data.success}`);
-        // console.log(`data.data == ${data.data}`);
-        return { success: data.success, data: data.data };
+
+        // Accessing and logging the properties of the data object
+        console.log(`Actions:`, data.actions); // Assuming data.actions is an array
+        console.log(`Match Rule Index: ${data['match-rule-index']}`); // Using bracket notation for properties with hyphens
+        console.log(`Match Rule Name: ${data['match-rule-name']}`);
+
+        // If you need to return this data, consider how you want to structure it.
+        // For example, you might return it as is or extract specific properties.
+        return {
+          success: true, // Assuming success based on your existing code
+          actions: data.actions,
+          matchRuleIndex: data['match-rule-index'],
+          matchRuleName: data['match-rule-name']
+        };
       })
       .catch((error) => {
         console.error('Error:', error);
-        if (error.message === 'Failed to fetch') {
+        let errorMessage = error.message || 'Unknown error';
+        if (errorMessage === 'Failed to fetch') {
           console.error('Network error. Is the server running?');
+          errorMessage = 'Network error. Is the server running?';
         }
-        this.setState({ validateErrFlag: true, message: error });
-        return { success: false, error: error };
+        this.setState({ validateErrFlag: true, message: errorMessage });
+
+        // Returning error in a structured format
+        return {
+          success: false,
+          error: {
+            message: errorMessage,
+            code: error.code || 'NETWORK_ERROR', // Example of adding an error code
+            details: error // You might want to include the original error object for debugging purposes
+          }
+        };
       });
   }
 
@@ -320,7 +345,7 @@ class RulesetContainer extends Component {
     console.log('Final deployResponses:', deployResponses);
     return deployResponses;
   }
-  
+
   sendDeployRuleset() {
     this.cancelAlert();
     const { ruleset } = this.props;

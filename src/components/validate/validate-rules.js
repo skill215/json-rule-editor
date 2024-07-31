@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Panel from '../panel/panel';
 import InputField from '../forms/input-field';
 import SelectField from '../forms/selectmenu-field';
+import Select from 'react-select';
 import Button from '../button/button';
 import Table from '../table/table';
 import Banner from '../panel/banner';
@@ -16,7 +17,7 @@ class ValidateRules extends Component {
     constructor(props) {
         super(props);
         // const conditions = props.attributes.filter(attr => attr.type !== 'object' && ({ name: attr.name, value: '' }))
-        const {vState} = this.props;
+        const { vState } = this.props;
         console.log(`vState in ValidateRules: ${JSON.stringify(vState)}`)
         this.state = {
             attributes: [],
@@ -27,6 +28,7 @@ class ValidateRules extends Component {
             outcomes: vState.outcomes ? vState.outcomes : [],
             error: vState.error ? vState.error : false,
             result: vState.result ? vState.result : false,
+            selectedCharacteristicsOptions: [],
         };
         // this.handleAttribute = this.handleAttribute.bind(this);
         this.handleValue = this.handleValue.bind(this);
@@ -57,7 +59,7 @@ class ValidateRules extends Component {
 
         // Update the vState in the parent
         const { outcomes, result, error, errorMessage } = this.state;
-        const vState = { conditions, outcomes, result, error, errorMessage};
+        const vState = { conditions, outcomes, result, error, errorMessage };
         this.props.updateVState(vState);
     }
 
@@ -67,12 +69,26 @@ class ValidateRules extends Component {
 
         // Update the vState in the parent
         const { outcomes, result, error, errorMessage } = this.state;
+        outcomes.forEach(condition => {
+            condition.value = "";
+        });
         const vState = { conditions, outcomes, result, error, errorMessage };
         this.props.updateVState(vState);
     }
 
     handleReset() {
-
+        this.setState({
+            attributes: [],
+            message: Message.NO_VALIDATION_MSG,
+            errorMessage: '',
+            loading: false,
+            outcomes: [],
+            error: false,
+            result: false,
+        });
+        const { outcomes, result, error, errorMessage } = this.state;
+        const vState = { outcomes, outcomes, result, error, errorMessage };
+        this.props.updateVState(vState);
     }
 
     validateRules(e) {
@@ -83,21 +99,28 @@ class ValidateRules extends Component {
         this.state.conditions.forEach(condition => {
             const attrProps = attributes.find(attr => attr.name === condition.name);
             console.log(`attrProps == ${JSON.stringify(attrProps)}`);
-            if (attrProps.type === 'number') {
+            if (!condition.value) { // Check if condition.value is empty or falsy
+                delete facts[condition.name]; // Remove the property from facts
+            } else if (attrProps.type === 'number') {
                 facts[condition.name] = Number(condition.value);
-            } else if (condition.value && condition.value.indexOf(',') > -1) {
-                facts[condition.name] = condition.value.split(',');
+            } else if (condition.value.indexOf(',') > -1) {
+                facts[condition.name] = condition.value.split(',').map(s => s.trim());
             } else {
                 facts[condition.name] = condition.value;
             }
-        })
+        });
+
         console.log(`facts == ${JSON.stringify(facts)}`);
         this.props.sendValidate(facts, this.props.ruleset)
             .then(sendResult => {
                 console.log(`sendResult == ${JSON.stringify(sendResult)}`);
                 let outcomesBuffer = [];
-                if (sendResult && sendResult.data.success == true) {
-                    outcomesBuffer = sendResult.data.success ? sendResult.data.data.message : '';
+                if (sendResult && sendResult.success) {
+                    outcomesBuffer = [
+                        `Matched Rule: ${sendResult.matchRuleIndex + 1} - ${sendResult.matchRuleName} || `,
+                        ...sendResult.actions.map((action, index) => `Action-${index + 1}: ${action.type.toUpperCase()}`)
+                    ];
+                    console.log(`outcomesBuffer == ${JSON.stringify(outcomesBuffer)}`);
                     this.setState({
                         loading: false,
                         outcomes: outcomesBuffer,
@@ -106,19 +129,20 @@ class ValidateRules extends Component {
                         errorMessage: '',
                     });
                 } else {
-                    outcomesBuffer = sendResult.data ? sendResult.data.message : '';
+                    const errorMessage = sendResult.error ? sendResult.error.message : 'An error occurred in communicating the rule engine';
+                    outcomesBuffer = [errorMessage];
                     this.setState({
                         loading: false,
                         outcomes: outcomesBuffer,
                         error: true,
-                        errorMessage: sendResult.data ? sendResult.data.message : 'An error occurred in communicating the rule engine',
-                        result: true,
+                        errorMessage: errorMessage,
+                        result: false,
                     });
                 }
 
                 // Update the vState in the parent
                 const { conditions, result, error, errorMessage } = this.state;
-                const vState = { conditions, outcomes: outcomesBuffer, result, error, errorMessage};
+                const vState = { conditions, outcomes: outcomesBuffer, result, error, errorMessage };
                 this.props.updateVState(vState);
             })
             .catch(error => {
@@ -127,10 +151,9 @@ class ValidateRules extends Component {
                     loading: false,
                     error: true,
                     errorMessage: 'An error occurred during validation',
-                    result: true,
+                    result: false,
                 });
             });
-
 
         // validateRuleset(facts, decisions).then(outcomes => {
         //     this.setState({loading: false, outcomes,  result: true, error: false, errorMessage: '',});
@@ -139,20 +162,91 @@ class ValidateRules extends Component {
         // });
     }
 
+    handleCharacteristicsChange = (selectedOptions, conditionIndex) => {
+        // Extract values from the selected options
+        let selectedValues = selectedOptions.map(option => option.value);
+        console.log(`selectedValues == ${JSON.stringify(selectedValues)}`);
+
+        // Define mutually exclusive pairs
+        const exclusives = [['isMO', 'isAO'], ['isMT', 'isAT']];
+
+        // Check for and handle mutual exclusivity
+        exclusives.forEach(([first, second]) => {
+            if (selectedValues.includes(first) && selectedValues.includes(second)) {
+                // Find which of the two was last added and remove the other
+                const lastAdded = selectedOptions[selectedOptions.length - 1].value;
+                if (lastAdded === first) {
+                    // Remove second
+                    const indexToRemove = selectedValues.indexOf(second);
+                    selectedValues.splice(indexToRemove, 1);
+                    selectedOptions = selectedOptions.filter(option => option.value !== second);
+                } else {
+                    // Remove first
+                    const indexToRemove = selectedValues.indexOf(first);
+                    selectedValues.splice(indexToRemove, 1);
+                    selectedOptions = selectedOptions.filter(option => option.value !== first);
+                }
+            }
+        });
+
+        // Update the state with the new selected options
+        this.setState({ selectedCharacteristicsOptions: selectedOptions });
+
+        // Update the conditions in the state with the new selection
+        this.setState(prevState => {
+            const newConditions = [...prevState.conditions];
+            console.log(`newConditions == ${JSON.stringify(newConditions)}`);
+            newConditions[conditionIndex] = {
+                ...newConditions[conditionIndex],
+                value: selectedValues.join(', ') // Assuming you store the values as a comma-separated string
+            };
+            return { conditions: newConditions };
+        });
+    }
+
     attributeItems = () => {
-        const { conditions, outcomes, loading, result, error, errorMessage } = this.state;
+        const { conditions, outcomes, loading, result, error, errorMessage, selectedCharacteristicsOptions } = this.state;
         // const { conditions, outcomes } = this.props.vState;
         const { attributes } = this.props;
         const options = attributes.map(att => att.name);
         console.log(` conditions == ${JSON.stringify(conditions)}`)
         console.log(` outcomes == ${JSON.stringify(outcomes)}`)
 
-        const formElements = conditions.map((condition, index) =>
-        (<tr key={condition.name + index || 'item' + index}>
-            <td><div>{condition.name}</div></td>
-            <td colSpan='2'>{<InputField onChange={e => this.handleValue(e, index)} value={condition.value} />}</td>
-        </tr>)
-        );
+        const formElements = conditions.map((condition, index) => {
+            if (condition.name === "CHARACTERISTICS") {
+                return (
+                    <tr key={condition.name + index || 'item' + index}>
+                        <td><div>{condition.name}</div></td>
+                        <td colSpan='2'>
+                            <Select
+                                isMulti
+                                name="characteristics"
+                                options={[
+                                    { value: 'isMO', label: 'isMO' },
+                                    { value: 'isMT', label: 'isMT' },
+                                    { value: 'isAO', label: 'isAO' },
+                                    { value: 'isAT', label: 'isAT' },
+                                    { value: 'isConcatenated', label: 'isConcatenated' },
+                                    { value: 'isHomerouting', label: 'isHomerouting' },
+                                    { value: 'isAlpha', label: 'isAlpha' }
+                                ]}
+                                value={selectedCharacteristicsOptions}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                onChange={e => this.handleCharacteristicsChange(e, index)}
+                            />
+                        </td>
+                    </tr>
+                );
+            } else {
+                return (
+                    <tr key={condition.name + index || 'item' + index}>
+                        <td><div>{condition.name}</div></td>
+                        <td colSpan='2'>{<InputField onChange={e => this.handleValue(e, index)} value={condition.value} />}</td>
+                    </tr>
+                );
+            }
+        });
 
         let message;
         if (result) {
@@ -181,7 +275,7 @@ class ValidateRules extends Component {
                 </Table>
                 <div className="btn-group">
                     <Button label={'Validate'} onConfirm={this.validateRules} classname="primary-btn" type="submit" />
-                    <Button label={'Reset'} onConfirm={this.handelReset} classname="primary-btn" type="reset" />
+                    <Button label={'Reset'} onConfirm={this.handleReset} classname="primary-btn" type="reset" />
                 </div>
                 <hr />
                 {loading && <Loader />}
