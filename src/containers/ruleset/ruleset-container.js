@@ -68,6 +68,7 @@ class RulesetContainer extends Component {
 
     this.generateFile = this.generateFile.bind(this);
     this.cancelAlert = this.cancelAlert.bind(this);
+    this.cancelAlertAfterDeploy = this.cancelAlertAfterDeploy.bind(this);
     this.getKlnames = this.getKlnames.bind(this);
     this.sendValidate = this.sendValidate.bind(this);
     this.sendRuleset = this.sendRuleset.bind(this);
@@ -78,6 +79,13 @@ class RulesetContainer extends Component {
     this.sendDeployRuleset = this.sendDeployRuleset.bind(this);
     this.updateVState = this.updateVState.bind(this);
     this.clearUpdatedFlag = this.clearUpdatedFlag.bind(this);
+    this.updateDeployedStats = this.updateDeployedStats.bind(this);
+  }
+
+
+  updateDeployedStats() {
+    console.log('Update the Deployed stats to successfully deployed');
+    this.props.handleDecisions('UPDATEDEPLOYEDSTATS', { deployedStats: true });
   }
 
   handleTab = (tabName) => {
@@ -313,37 +321,33 @@ class RulesetContainer extends Component {
   }
 
   transformData(data) {
-    // console.log('Transforming data:', data);
-
-    let deployResponses = [];
-
-    data.forEach((item, index) => {
-      // console.log(`Processing item ${index}:`, item);
-
-      if (item.result) {
-        try {
-          let info = JSON.parse(JSON.parse(item.info));
-          // console.log(`Parsed info for item ${index}:`, info);
-
-          let node = item.node;
-          let result = info.success;
-          let message = info.data ? info.data.message : 'info.data is undefined';
-
-          deployResponses.push({ node, result, info: message });
-
-          console.log(`Updated deployResponses for item ${index}:`, deployResponses);
-        } catch (error) {
-          console.error(`Error parsing info for item ${index}:`, error);
-        }
-      } else {
-        deployResponses.push({ node: item.node, result: false, info: item.info });
-
-        console.log(`Updated deployResponses for item ${index}:`, deployResponses);
-      }
-    });
-
-    console.log('Final deployResponses:', deployResponses);
-    return deployResponses;
+      let deployResponses = [];
+  
+      data.forEach((item, index) => {
+          if (item.result) {
+              try {
+                  let info = typeof item.info === 'string' ? JSON.parse(item.info) : item.info;
+                  console.log(`Parsed info for item ${index}:`, info);
+  
+                  let node = item.node;
+                  let result = item.result; // Use item.result directly
+                  let message = info.message ? info.message : 'info.message is undefined';
+  
+                  deployResponses.push({ node, result, info: message });
+  
+                  console.log(`Updated deployResponses for item ${index}:`, deployResponses);
+              } catch (error) {
+                  console.error(`Error parsing info for item ${index}:`, error);
+              }
+          } else {
+              deployResponses.push({ node: item.node, result: false, info: item.info });
+  
+              console.log(`Updated deployResponses for item ${index}:`, deployResponses);
+          }
+      });
+  
+      console.log('Final deployResponses:', deployResponses);
+      return deployResponses;
   }
 
   sendDeployRuleset() {
@@ -395,6 +399,25 @@ class RulesetContainer extends Component {
   }
 
   cancelAlert() {
+    this.setState({
+      generateFlag: false,
+      sendToServerFlag: false,
+      sendToServerErrFlag: false,
+      deleteFromServerFlag: false,
+      deleteFromServerErrFlag: false,
+      validateFlag: false,
+      validateErrFlag: false,
+      deleteFlag: false,
+      deleteErrFlag: false,
+      deployFlag: false,
+      deployErrFlag: false,
+      alert: null,
+      message: ''
+    });
+  }
+
+  cancelAlertAfterDeploy() {
+    this.updateDeployedStats()
     this.setState({
       generateFlag: false,
       sendToServerFlag: false,
@@ -492,7 +515,7 @@ class RulesetContainer extends Component {
       <SweetAlert
         success
         title={"Rule Deployed!"}
-        onConfirm={this.cancelAlert}
+        onConfirm={this.cancelAlertAfterDeploy}
       >
         {`${name} rule deployment operation succeeded. For detailed result of individual node, check the in-page table.`}
       </SweetAlert>

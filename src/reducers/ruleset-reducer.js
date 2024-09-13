@@ -2,12 +2,19 @@ import * as ActionTypes from '../actions/action-types';
 import { cloneDeep } from 'lodash/lang';
 import { findIndex } from 'lodash/array';
 import attributesPredefined from '../data-objects/facts.json';
+import featuresData from '../data-objects/features.json';
 import { name } from 'file-loader';
+
+const { features } = featuresData;
 
 const initialState = {
     rulesets: [],
     activeRuleset: 0,
     updatedFlag: [],
+    deployedFlag: features.reduce((acc, feature) => {
+        acc[feature] = [];
+        return acc;
+    }, {}),
     uploadedRules: [],
 }
 
@@ -143,13 +150,18 @@ function ruleset(state = initialState, action = '') {
             activeRuleSet.decisions = activeRuleSet.decisions.concat(decision);
 
             // Create a copy of the updatedFlag array
-            const updatedFlag = [...state.updatedFlag];
             // Set the value at state.activeRuleset to true
-            updatedFlag[state.activeRuleset] = true;
+            [...state.updatedFlag][state.activeRuleset] = true;
 
             return {
                 ...state,
-                updatedFlag, // Use the updated array
+                _updatedFlag: [...state.updatedFlag], // Use the updated array
+                get updatedFlag() {
+                    return this._updatedFlag;
+                },
+                set updatedFlag(value) {
+                    this._updatedFlag = value;
+                },
                 rulesets: replaceRulesetByIndex(state.rulesets, activeRuleSet, state.activeRuleset)
             }
         }
@@ -460,6 +472,31 @@ function ruleset(state = initialState, action = '') {
             updatedFlag[state.activeRuleset] = false;
             // console.log(`in CLEAR_UPDATED_FLAG, updatedFlag: ${JSON.stringify(updatedFlag)} `);
             return { ...state, updatedFlag }
+        }
+
+        case ActionTypes.UPDATE_DEPLOY_STATS: {
+            // Create a copy of the deployedFlag object from the state
+            const deployedFlag = { ...state.deployedFlag };
+            
+            // Create a copy of the active ruleset from the state
+            const activeRuleSet = { ...state.rulesets[state.activeRuleset] };
+            
+            // Extract the feature name from the active ruleset
+            const feature = activeRuleSet.feature;
+            
+            // Initialize the feature array to zero
+            deployedFlag[feature] = new Array(deployedFlag[feature].length).fill(0);
+            
+            // Set the active ruleset to 1
+            deployedFlag[feature][state.activeRuleset] = 1;
+
+            console.log(`in UPDATE_DEPLOY_STATS, deployedFlag: ${JSON.stringify(deployedFlag)} `);
+            
+            // Return the updated state
+            return {
+                ...state,
+                deployedFlag
+            };
         }
 
         default:

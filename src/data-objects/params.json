@@ -4,12 +4,12 @@
             "D-ADDR",
             "O-IMSI",
             "D-IMSI",
-            "O-VMSC",
-            "O-SMSC",
+            "VMSC",
+            "SMSC",
             "PID",
             "SET-AO",
             "ERROR-CODE",
-            "MESSAGE-CONTENT"
+            "CONTENT"
         ],
         "event-type": [
             "ACCEPT",
@@ -19,6 +19,10 @@
         "operator": [
             "replacePrefix",
             "replaceSuffix",
-            "set"
+            "set",
+            "check"
+        ],
+        "check-type": [
+            "URL"
         ]
     }

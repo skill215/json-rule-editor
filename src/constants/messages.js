@@ -44,13 +44,13 @@ const BUTTON_PROPS_KLIST = {label: 'Upload Keyword List'};
 export const NO_KLIST_MSG = {header: NO_KLIST_HEADER, body: NO_KLIST_BODY, buttonProps: BUTTON_PROPS_KLIST, type: 'warning-panel'};
 
 
-const NO_DECISION_HEADER = 'No Decisions';
-const NO_DECISION_BODY = 'There is no decisions available in the selected ruleset.'
-const BUTTON_PROPS_DECISION = {label: 'Create Decisions'};
+const NO_DECISION_HEADER = 'No Rules';
+const NO_DECISION_BODY = 'There is no rules available in the selected ruleset.'
+const BUTTON_PROPS_DECISION = {label: 'Create Rules'};
 export const NO_DECISION_MSG = {header: NO_DECISION_HEADER, body: NO_DECISION_BODY, buttonProps: BUTTON_PROPS_DECISION, type: 'warning-panel'};
 
 
-const NO_VALIDATION_BODY = 'There is no decisions available in the selected ruleset to validate.'
+const NO_VALIDATION_BODY = 'There is no rules available in the selected ruleset to validate.'
 export const NO_VALIDATION_MSG = {header: NO_DECISION_HEADER, body: NO_VALIDATION_BODY, type: 'warning-panel'};
 
 export const RULE_AVAILABLE_CREATE = { type: 'warning', heading: 'This rule name exists already.' };

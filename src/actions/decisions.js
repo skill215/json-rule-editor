@@ -65,6 +65,12 @@ export const updateFeature = (feature) => {
     return ({ type: ActionTypes.UPDATE_FEATURE, payload });
 }
 
+export const updateDeployedStats = (deployedStats) => {
+    const payload = { deployedStats };
+    console.log(`in updateDeployedStats, payload: ${JSON.stringify(payload)} `);
+    return ({ type: ActionTypes.UPDATE_DEPLOY_STATS, payload });
+}
+
 export const clearUpdatedFlag = () => {
     return ({ type: ActionTypes.CLEAR_UPDATED_FLAG });
 }
@@ -117,6 +123,11 @@ export const handleDecision = (action, editDecision = {}, metadata = {}) => (dis
         case 'UPDATEFEATURE': {
             const { feature } = editDecision;
             return dispatch(updateFeature(feature));
+        }
+
+        case 'UPDATEDEPLOYEDSTATS': {
+            const { deployedStats } = editDecision;
+            return dispatch(updateDeployedStats(deployedStats));
         }
 
         case 'CLEARUPDATEDFLAG': {
